@@ -1,32 +1,28 @@
 @layout("/common/_container.html"){
 <div class="ibox float-e-margins">
-    <div class="ibox-content">
-        <div class="form-horizontal">
+	<div class="ibox-content">
+		<div class="form-horizontal">
 
-            <input type="hidden" id="id" value="">
-			
-			
-			<div class="file-box" align="center" >
-   <form action="" method="post" enctype="multipart/form-data" > 
-    <input  type="file" name="uploadFile" class="file" id="fileField" size="66" onchange="document.getElementById('textfield').value=this.value" />
- 
-  </form>
-</div>
-			
-			
-			
-			
-			
+			<input type="hidden" id="id" value="">
 
-            <div class="row btn-group-m-t">
-                <div class="col-sm-10">
-                    <#button btnCss="info" name="附件上传" id="ensure" icon="fa-check" clickFun="SampleInfoDlg.uploadFile()"/>
-                    <#button btnCss="danger" name="取消" id="cancel" icon="fa-eraser" clickFun="SampleInfoDlg.close()"/>
-                </div>
-            </div>
-        </div>
 
-    </div>
+			<div class="file-box" align="center">
+				<form action="" method="post" enctype="multipart/form-data"
+					id="formid">
+					<input
+						accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+						type="file" name="uploadFile" class="file" id="fileField"
+						onchange="document.getElementById('textfield').value=this.value" />
+				</form>						
+			</div>
+			<#button btnCss="info" name="提交" id="ensure" icon="fa-check"
+				clickFun="SampleInfoDlg.uploadFile()" />
+			<#button btnCss="danger" name="取消" id="cancel" icon="fa-eraser"
+				clickFun="SampleInfoDlg.close()" />
+
+		</div>
+
+	</div>
 </div>
 <script src="${ctxPath}/static/modular/business/sample/sample_info.js"></script>
 @}

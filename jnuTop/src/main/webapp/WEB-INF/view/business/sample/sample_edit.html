@@ -3,17 +3,54 @@
     <div class="ibox-content">
         <div class="form-horizontal">
 
-            <input type="hidden" id="id" value="${sample.id}">
-
+            <input type="hidden" id="sampleId" value="${sample.sampleId}">
+			
+			
+			
             <div class="row">
                 <div class="col-sm-6 b-r">
-
+                    <#IconInput id="labCode" name="实验室编号" underline="true" icon="glyphicon glyphicon-ok" value="${sample.labCode}" />
+                    <#IconInput id="sampleNumber" name="样本编号" underline="true" icon="glyphicon glyphicon-ok" value="${sample.sampleNumber}" />
+                    <#IconInput id="detectionItem" name="检测项目" underline="true" icon="glyphicon glyphicon-book" value="${sample.detectionItem}" />
+                    <#IconInput id="salesman" name="销售员" underline="true" icon="glyphicon glyphicon-user" value="${sample.salesman}" />
+                    <#IconInput id="subjectName" name="受检者" underline="true" icon="glyphicon glyphicon-user" value= "${sample.subjectName}" />
+                    <#TimeConPlus id="acceptDate" name="收样日期" underline="true" isTime="true" pattern="YYYY-MM-DD" icon="glyphicon glyphicon-calendar" value = "${sample.acceptDate}"  />
+                    <#IconInput id="detectionDuration" name="检测所需时间" underline="true" icon="glyphicon glyphicon-time" value="${sample.detectionDuration}" />
+                    <#TimeConPlus id="expectedReportTime" name="理论出报告时间" underline="true" isTime="false" pattern="YYYY-MM-DD" icon="glyphicon glyphicon-calendar"  />
                 </div>
 
                 <div class="col-sm-6">
-
+                    <#IconInput id="extracted" name="是否已提取" underline="true" icon="glyphicon glyphicon-tint" value="${sample.extracted}" />
+                    <#IconInput id="sampleType" name="样品类型" underline="true" icon="glyphicon glyphicon-plus" list="sampleTypeList" value="${sample.sampleType}" />
+                    <datalist id="sampleTypeList">
+                        <option value="血液"/>
+                        <option value="唾液"/>
+                        <option value="组织"/>
+                        <option value="切片"/>
+                        <option value="蜡块"/>
+                        <option value="streck管"/>
+                        <option value="其他"/>
+                    </datalist>
+                    <#IconInput id="plasmaSeparation" name="血浆分离情况" underline="true" icon="glyphicon glyphicon-heart-empty" value="${sample.plasmaSeparation}" />
+                    <#IconInput id="transportCondition" name="运输条件" underline="true" icon="glyphicon glyphicon-plus" list="transportConditionList" value="${sample.transportCondition}" />
+                    <datalist id="transportConditionList">
+                        <option value="常温"/>
+                        <option value="干冰"/>
+                        <option value="冰袋"/>
+                        <option value="其他"/>
+                    </datalist>
+                    <#IconInput id="sampleStorage" name="样本存储位置" underline="true" icon="glyphicon glyphicon-home" value="${sample.sampleStorage}" />
+                    <#textarea id="remark" name="备注" underline="true" icon="glyphicon glyphicon-bookmark" value="${sample.remark}" ></#textarea>
+                  
                 </div>
             </div>
+			
+			
+			
+			
+			
+			
+			
 
             <div class="row btn-group-m-t">
                 <div class="col-sm-10">

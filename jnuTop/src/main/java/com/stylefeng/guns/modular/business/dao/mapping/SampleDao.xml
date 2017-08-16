@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.stylefeng.guns.modular.business.dao.SampleDao">
+    <sql id="Base_Column_List">
 
+</sql>
+<select id="selectSamples" resultType="map">
+select * from t_sample
+</select>
+<!-- void deleteById(Integer id); -->
+<select id="deleteById" parameterType="Integer" >
+delete from t_sample where sample_id = #{id}
+</select>
 </mapper>
