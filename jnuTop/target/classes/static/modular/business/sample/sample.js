@@ -3,7 +3,7 @@
  */
 var Sample = {
     id: "SampleTable",	//表格id
-    seItem: null,		//选中的条目
+    seItem: [],		//选中的条目 可能多选 所以将null改成了[]
     table: null,
     layerIndex: -1
 };
@@ -13,7 +13,7 @@ var Sample = {
  */
 Sample.initColumn = function () {
     return [
-        {field: 'selectItem', radio: true},
+        {field: 'selectItem', checkbox: true},
         {title: 'id', field: 'sample_id', visible: false, align: 'center', valign: 'middle'},
         {title: '检测项目', field: 'detection_item', visible: true, align: 'center', valign: 'middle'},
         {title: '实验室编码', field: 'lab_code', visible: true, align: 'center', valign: 'middle'},
@@ -43,7 +43,11 @@ Sample.check = function () {
         Feng.info("请先选中表格中的某一记录！");
         return false;
     }else{
-        Sample.seItem = selected[0];
+    	//将选中的值 循环录入数组Sample.seItem中
+    	for( var i = 0; i < selected.length; i++) {
+    		Sample.seItem[i] = selected[i];
+    	}
+        
         return true;
     }
 };
@@ -88,7 +92,7 @@ Sample.uploadFile= function () {
     var index = layer.open({
         type: 2,
         title: '附件上传',
-        area: ['500px', '250px'], //宽高
+        area: ['1000px', '500px'], //宽高
         fix: false, //不固定
         maxmin: true,
         content: Feng.ctxPath + '/sample/sample_uploadFile'
@@ -110,7 +114,7 @@ Sample.openSampleDetail = function () {
 	            area: ['1100px', '600px'], //宽高
 	            fix: false, //不固定
 	            maxmin: true,
-	            content: Feng.ctxPath + '/sample/sample_update/' + this.seItem.sample_id
+	            content: Feng.ctxPath + '/sample/sample_update/' + this.seItem[0].sample_id
 	        });
 	        this.layerIndex = index;
 	    }
@@ -122,15 +126,94 @@ Sample.openSampleDetail = function () {
  */
 Sample.delete = function () {
     if (this.check()) {
-        var ajax = new $ax(Feng.ctxPath + "/sample/delete", function (data) {
+   //    var ajax = new $ax(Feng.ctxPath + "/sample/delete", function (data) {
+    	var ajax = new $ax(Feng.ctxPath + "/sample/delete", function (data) {	
+        	
+    		
             Feng.success("删除成功!");
+            
             Sample.table.refresh();
         }, function (data) {
             Feng.error("删除失败!" + data.responseJSON.message + "!");
         });
-        ajax.set("sampleId",this.seItem.sample_id);
+        
+        //创建一个数组,通过循环遍历,将所选对象的id传过去,格式是 ids=500,501,502
+        var array = new Array();
+    	for(var i = 0; i < this.seItem.length; i++){
+			var id = this.seItem[i].sample_id
+			array.push(id);
+		}
+		var ids = array.join(",");
+        ajax.set("sampleId",ids);
         ajax.start();
     }
+};
+
+/**
+ * 导出excel
+ */
+//Sample.outputExcel = function () {
+//    if (this.check()) {
+//        var ajax = new $ax(Feng.ctxPath + "/sample/outputExcel", function (data) {
+//            Feng.success("导出成功!");
+//        }, function (data) {
+//            Feng.error("导出失败!" + "!");
+//        });
+//        
+//        //创建一个数组,通过循环遍历,将所选对象的id传过去,格式是 ids=500,501,502
+//        var array = new Array();
+//    	for(var i = 0; i < this.seItem.length; i++){
+//			var id = this.seItem[i].sample_id
+//			array.push(id);
+//		}
+//		var ids = array.join(",");
+//        ajax.set("sampleId",ids);
+//        ajax.set("title","检测项目,实验室编码,样本编号,受检者姓名,销售,收样日期,样本类型,运输条件,血液到样温度,理论出报告时间,备注,样本来源,是否已提取,样本储存位置,报告日期14自然日")
+//        ajax.start();
+//    }
+//};
+
+outputExcel = function () {
+    if (Sample.check()) {
+ 
+        //创建一个数组,通过循环遍历,将所选对象的id传过去,格式是 ids=500,501,502
+        var array = new Array();
+    	for(var i = 0; i <Sample.seItem.length; i++){
+			var id = Sample.seItem[i].sample_id
+			array.push(id);
+		}
+		var ids = array.join(",");
+		$.ajax({
+			url : "/sample/outputExcel",
+			type : 'POST',
+			data : {
+				"sampleId":ids,
+				"title":"检测项目,实验室编码,样本编号,受检者姓名,销售,收样日期,样本类型,运输条件,血液到样温度,理论出报告时间,备注,样本来源,是否已提取,样本储存位置,报告日期14自然日"
+			},
+			dataType : "JSON",
+			success : function(returndata) {
+				var downloadURL= "/sample/ajaxDownload";
+				var filedir="E:\\projectTest";
+				var filename="test.xls";
+				Feng.success("导出成功!");
+				 $.download(downloadURL, 'post', filedir, filename); // 下载文件
+			},
+			error : function(returndata) {
+			
+				 Feng.error("导出失败!" + returndata+"!");
+					location.href='E:\\projectTest\\test.xls'
+			}
+		});
+    }
+};
+
+//文件下载
+jQuery.download = function(url, method, filedir, filename){
+ jQuery('<form action="'+url+'" method="'+(method||'post')+'">' +  // action请求路径及推送方法
+             '<input type="text" name="filedir" value="'+filedir+'"/>' + // 文件路径
+             '<input type="text" name="filename" value="'+filename+'"/>' + // 文件名称
+         '</form>')
+ .appendTo('body').submit().remove();
 };
 
 /**

@@ -9,8 +9,10 @@ import com.stylefeng.guns.common.exception.RepeatException;
 import com.stylefeng.guns.modular.business.dao.SampleDao;
 import com.stylefeng.guns.modular.business.entity.Sample;
 import com.stylefeng.guns.modular.business.service.ISampleService;
-import com.stylefeng.guns.modular.business.service.IThreadSampleService;
+import com.stylefeng.guns.modular.business.util.ExcelOutput;
 import com.stylefeng.guns.modular.business.util.ExcelReader;
+import com.stylefeng.guns.modular.business.util.ExportExcel;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,18 +21,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.stylefeng.guns.common.constant.tips.ErrorTip;
 import com.stylefeng.guns.common.constant.tips.Tip;
+
 import javax.annotation.Resource;
 import javax.naming.NoPermissionException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.stylefeng.guns.modular.business.service.IThreadSampleService;
+
 /**
  * 样本控制器
  *
@@ -43,13 +57,13 @@ import com.stylefeng.guns.modular.business.service.IThreadSampleService;
 public class SampleController extends BaseController {
 
     private String PREFIX = "/business/sample/";
-    @Resource
-	private IThreadSampleService threadSampleService;
+
     private Logger log = LoggerFactory.getLogger(this.getClass());
     @Resource
     ISampleService sampleService;
     @Autowired
     private SampleDao sampleDao;
+
     /**
      * 跳转到样本首页
      */
@@ -70,7 +84,7 @@ public class SampleController extends BaseController {
      * 跳转到修改样本
      */
     @RequestMapping(value = "/sample_update/{sample_id}")
-    public String sampleUpdate( @PathVariable Integer sample_id, Model model) {
+    public String sampleUpdate(@PathVariable Integer sample_id, Model model) {
         Sample sample = sampleService.findSampleById(sample_id);
         model.addAttribute(sample);
         return PREFIX + "sample_edit.html";
@@ -78,48 +92,63 @@ public class SampleController extends BaseController {
 
     /**
      * 跳转到Excel导入页面
+     *
      * @return
      */
     @RequestMapping("/sample_uploadFile")
-    public String sampleUpload(){
+    public String sampleUpload() {
         return PREFIX + "sample_uploadFile.html";
     }
 
     /**
-     * 获取样本列表
+     * 
+     * @author 罗健金
+     * @date 2017年8月17日
+     * @param condition
+     * @return 返回样本信息列表
      */
     @RequestMapping(value = "/list")
     @ResponseBody
     public Object list(String condition) {
-        List<Map<String,Object>> samples=sampleDao.selectSamples();
+        List<Map<String,Object>> samples = sampleDao.selectSamplesByCondition(condition);
         return samples;
     }
 
 
-	/**
-	 * 新增样本
-	 */
-	@RequestMapping(value = "/add")
-	@ResponseBody
-	public Object add(@Valid Sample sample, BindingResult bindingResult) throws NoPermissionException {
-		if (bindingResult.hasErrors()){
-		    throw new BussinessException(BizExceptionEnum.REQUEST_NULL);
-		}
-		sample.setSampleId(null);
-		sampleDao.insert(sample);
-		return super.SUCCESS_TIP;
-	}
+    /**
+     * 新增样本
+     */
+    @RequestMapping(value = "/add")
+    @ResponseBody
+    public Object add(@Valid Sample sample, BindingResult bindingResult) throws NoPermissionException {
+        if (bindingResult.hasErrors()) {
+            throw new BussinessException(BizExceptionEnum.REQUEST_NULL);
+        }
+        sample.setSampleId(null);
+        try{
+            Integer insertedRow = sampleDao.insert(sample);
+            if (insertedRow <= 0) {
+                throw new BussinessException(BizExceptionEnum.SERVER_ERROR);
+            }
+        }catch (Exception e){
+            throw new BussinessException(BizExceptionEnum.SAMPLE_REPEAT_ERROR);
+        }
+        return super.SUCCESS_TIP;
+    }
 
-	  
+
     /**
      * 删除样本
      */
     @RequestMapping(value = "/delete")
     @ResponseBody
-    public Object delete( Integer sampleId) {
-        sampleDao.deleteById(sampleId);
+    public Object delete(String sampleId) {
+        sampleService.deleteById(sampleId);
         return SUCCESS_TIP;
     }
+    
+    
+    
 
     /**
      * 修改样本
@@ -140,41 +169,38 @@ public class SampleController extends BaseController {
     public Object detail() {
         return null;
     }
-    
+
     /**
      * 导入excel文件
-     * @throws Exception 
+     *
+     * @throws Exception
      */
-    @RequestMapping(value = "/importExcel",method = RequestMethod.POST)
+    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     @ResponseBody
-    public Tip insertExcel( @RequestParam("uploadFile") MultipartFile  uploadFiles,Model model) throws Exception {
-    	
- 
-    	System.out.println("controller接受到了 "+uploadFiles.getOriginalFilename());
-        
-    
-		List<Sample> list = new ArrayList<Sample>();
-				
-		try {
-			InputStream inputStream=uploadFiles.getInputStream();
-			list = ExcelReader.read(inputStream);
-		} catch (NonullException e) {
-			throw new DBErrorException(e.getErrorInfo(), e.getErrorInfo());
-		} catch (Exception e) {
-			throw new DBErrorException("文件格式错误", e.getMessage());
-		}
+    public Tip insertExcel( @RequestParam("uploadFile") MultipartFile  uploadFile,Model model) throws Exception {
+        System.out.println("controller接受到了 " + uploadFile.getOriginalFilename());
 
-		try {
-			threadSampleService.inputSamples(list, 0, list.size() - 1);
-		} catch (RepeatException e) {
-			throw new DBErrorException(e.getErrorInfo(), e.getErrorInfo());
-		}
-		return SUCCESS_TIP;
-	}
 
-    public void setThreadSampleService(IThreadSampleService threadSampleService) {
-        this.threadSampleService = threadSampleService;
+        List<Sample> list = new ArrayList<Sample>();
+
+        try {
+            InputStream inputStream = uploadFile.getInputStream();
+            list = ExcelReader.read(inputStream);
+        } catch (NonullException e) {
+            throw new DBErrorException(e.getErrorInfo(), e.getErrorInfo());
+        } catch (Exception e) {
+            System.out.println("错误类型：" + e.getMessage());
+            throw new DBErrorException("文件格式错误", e.getMessage());
+        }
+
+        try {
+            sampleService.inputSamples(list, 0, list.size() - 1);
+        } catch (RepeatException e) {
+            throw new DBErrorException(e.getErrorInfo(), e.getErrorInfo());
+        }
+        return SUCCESS_TIP;
     }
+
 
     public void setSampleService(ISampleService sampleService) {
         this.sampleService = sampleService;
@@ -183,6 +209,108 @@ public class SampleController extends BaseController {
     public void setSampleDao(SampleDao sampleDao) {
         this.sampleDao = sampleDao;
     }
+  /**
+     * 导出Excel
+     * @throws Exception 
+     */
+    @RequestMapping("/outputExcel")
+    @ResponseBody
+    public Tip outputExcel(HttpServletResponse response,HttpServletRequest request,String sampleId,String title) throws Exception{
+    	List<Sample> list;
+    	 System.out.println("sampleId为："+sampleId);
+    	 System.out.println("title为："+title);
+    	list=sampleService.selectListByIds(sampleId);
+
+        ExportExcel<Sample> ex = new ExportExcel<Sample>();        
+        try  
+        {  
+            
+  
+            OutputStream out = new FileOutputStream("E:\\projectTest\\test.xls");  
+
+            ex.exportExcel(title.split(","), list, out);  
+
+            out.close();  
     
+            System.out.println("excel导出成功！");  
+        } catch (FileNotFoundException e) {  
+        	throw new DBErrorException("文件正在被使用", e.getMessage());
+        } catch (IOException e) {  
+        	throw new DBErrorException(e.getMessage(), e.getMessage());
+        }  
+    
+    	
+//    	try {
+//    		list=sampleService.selectListByIds(sampleId);
+//		} catch (Exception e) {
+//			throw new DBErrorException(e.getMessage(), e.getMessage());
+//		}
+//    	
+//    	try {
+//    		ExcelOutput.output(response,list, title.split(","));
+//		} catch (Exception e) {
+//			throw new DBErrorException(e.getMessage(), e.getMessage());
+//		}
+    	
+    	return SUCCESS_TIP;
+    }
+    
+    /**
+     * 将生成的文件网络传输到客户端
+     */
+    @RequestMapping("/ajaxDownload")
+    public void ajaxDownload(HttpServletResponse response,HttpServletRequest request) throws Exception {
+    	System.out.println("准备下载");
+        InputStream ins = null;
+        BufferedInputStream bins = null;
+        OutputStream outs = null;
+        BufferedOutputStream bouts = null;
+        String file_name = request.getParameter("filename").trim(); // 文件名
+        String file_dir = request.getParameter("filedir").trim(); // 文件路径
+        System.out.println("获取到文件路径：" + file_dir + File.separator + file_name);
+        try {
+            if (!"".equals(file_name)) {
+                File file = new File(file_dir + File.separator + file_name);
+                if (file.exists()) {
+                    ins = new FileInputStream(file_dir + File.separator
+                            + file_name);
+                    bins = new BufferedInputStream(ins);
+                    outs = response.getOutputStream();
+                    bouts = new BufferedOutputStream(outs);
+                    response.setContentType("application/x-download");
+                    response.setHeader(
+                            "Content-disposition",
+                            "attachment;filename="
+                                    + URLEncoder.encode(file_name, "UTF-8"));
+                    int bytesRead = 0;
+                    byte[] buffer = new byte[8192];
+                    while ((bytesRead = bins.read(buffer, 0, 8192)) != -1) {
+                        bouts.write(buffer, 0, bytesRead);
+                    }
+                    bouts.flush();
+                } else {
+                    throw new Exception("下载的文件不存在！");
+                }
+            } else {
+                throw new Exception("导出文件时发生错误！");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            if (null != ins) {
+                ins.close();
+            }
+            if (null != bins) {
+                bins.close();
+            }
+            if (null != outs) {
+                outs.close();
+            }
+            if (null != bouts) {
+                bouts.close();
+            }
+        }
+    }
+ 
 
 }

@@ -1,7 +1,7 @@
 @layout("/common/_container.html"){
 <div class="ibox float-e-margins">
     <div class="ibox-content">
-        <div class="form-horizontal">
+        <div class="form-horizontal" id="sampleInfoForm">
 
             <input type="hidden" id="id" value="">
 
@@ -12,13 +12,17 @@
                     <#IconInput id="detectionItem" name="检测项目" underline="true" icon="glyphicon glyphicon-book"/>
                     <#IconInput id="salesman" name="销售员" underline="true" icon="glyphicon glyphicon-user"/>
                     <#IconInput id="subjectName" name="受检者" underline="true" icon="glyphicon glyphicon-user"/>
-                    <#TimeConPlus id="acceptDate" name="收样日期" underline="true" isTime="false" pattern="YYYY-MM-DD" icon="glyphicon glyphicon-calendar" />
+                    <#TimeConPlus id="acceptDate" name="收样日期,格式如:2017-08-17" underline="true" isTime="false" pattern="YYYY-MM-DD" icon="glyphicon glyphicon-calendar" />
                     <#IconInput id="detectionDuration" name="检测所需时间" underline="true" icon="glyphicon glyphicon-time"/>
-                    <#TimeConPlus id="expectedReportTime" name="理论出报告时间" underline="true" isTime="false" pattern="YYYY-MM-DD" icon="glyphicon glyphicon-calendar" />
+                    <#TimeConPlus id="expectedReportTime" name="理论出报告时间，格式如:2017-08-17" underline="true" isTime="false" pattern="YYYY-MM-DD" icon="glyphicon glyphicon-calendar"/>
                 </div>
 
                 <div class="col-sm-6">
-                    <#IconInput id="extracted" name="是否已提取" underline="true" icon="glyphicon glyphicon-tint"/>
+                    <#IconInput id="extracted" name="是否已提取" underline="true" icon="glyphicon glyphicon-tint" list="extractedList"/>
+                    <datalist id="extractedList">
+                        <option value="已提取"/>
+                        <option value="未提取"/>
+                    </datalist>
                     <#IconInput id="sampleType" name="样品类型" underline="true" icon="glyphicon glyphicon-plus" list="sampleTypeList"/>
                     <datalist id="sampleTypeList">
                         <option value="血液"/>

@@ -1,10 +1,12 @@
 /**
  * 初始化样本详情对话框
  */
+
+var errorMessage;//用来获取导入文件后的返回结果
 var SampleInfoDlg = {
 	sampleInfoData : {},
     validateFields: {
-        /*labCode:{
+        labCode:{
             validators: {
                 notEmpty: {
                     message: '实验室编号不能为空'
@@ -18,7 +20,7 @@ var SampleInfoDlg = {
                     message: '实验室编号只能包含数字、大写和小写字母'
                 }
             }
-        },*/
+        },
         sampleNumber:{
             validators: {
                 notEmpty: {
@@ -68,6 +70,22 @@ var SampleInfoDlg = {
                 regexp:{
                     regexp:/^\d+$/,
                     message:'检测所需时间只能是大于0的整数'
+                }
+            }
+        },
+        acceptDate:{
+            validators: {
+                date:{
+                    format:'YYYY-MM-DD',
+                    message:'日期格式不正确'
+                }
+            }
+        },
+        expectedReportTime:{
+            validators: {
+                date:{
+                    format:'YYYY-MM-DD',
+                    message:'日期格式不正确'
                 }
             }
         }
@@ -135,9 +153,9 @@ SampleInfoDlg.addSubmit = function() {
 	this.collectData();
 
 	// 判断是否能够提交
-   /* if (!this.validate()) {
+    if (!this.validate()) {
         return;
-    }*/
+    }
 
 	//提交信息
 	var ajax = new $ax(Feng.ctxPath + "/sample/add", function(data) {
@@ -151,41 +169,18 @@ SampleInfoDlg.addSubmit = function() {
 	ajax.start();
 }
 
-/**
- * 提交Excel
- */
-SampleInfoDlg.uploadFile = function() {
-
-	var formData = new FormData($("#formid")[0]);
-		$.ajax({
-			url : Feng.ctxPath + '/sample/importExcel',
-			type : 'POST',
-			data : formData,
-			async : false,
-			cache : false,
-			contentType : false,
-			processData : false,
-			dataType : "JSON",
-			success : function(returndata) {
-					Feng.success("导入成功!");
-					window.parent.Sample.table.refresh();
-					SampleInfoDlg.close();
-					location.reload();
-			},
-			error : function(data) {
-				 Feng.error("导入失败!" + data.responseJSON.message + "!");
-			}
-		});
-
-}
 
 /**
  * 提交修改
  */
 SampleInfoDlg.editSubmit = function() {
-
 	this.clearData();
 	this.collectData();
+
+    // 判断是否能够提交
+    if (!this.validate()) {
+        return;
+    }
 
 	//提交信息
 	var ajax = new $ax(Feng.ctxPath + "/sample/update", function(data) {
@@ -199,69 +194,81 @@ SampleInfoDlg.editSubmit = function() {
 	ajax.start();
 }
 
-function CheckFileType() {
-    //是否上传成功
-    var uploadSuccess = false;
 
-    //是否检测成功
-    var checkSuccess = false;
+/*
+ * 以下到下划线为提交Excel表格的js
+ */
 
-    //检测文件类型
-        var file = $("#uploadFile").val();
-        console.log("文件路径："+file);
-        if(file == '' || file == null) {
-            $("#hintInfo").html("<span style='color:red;'>请选择所要上传的文件！</span>");
-            return false;
-        }
+var uploader = WebUploader.create({
 
-        var index = file.lastIndexOf(".");
-        var ext = file.substring(index + 1, file.length);
-        console.log("文件类型："+ext);
+    // swf文件路径
+    swf: Feng.ctxPath
+	+ '/static/css/plugins/webuploader/Uploader.swf',
+    // 文件接收服务端。
+    server: Feng.ctxPath + '/sample/importExcel',
+    fileVal: "uploadFile",
+    accept : {
+		title : 'Excel',
+		extensions : 'xlsx',
+        mimeTypes : 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	},
+    pick: '#picker',
+//    auto: true, //选择文件后自动上传
+    resize: false,
+    
+    duplicate:true//是否可以重复上传
+});
 
-        if(ext != "xlxs") {
-            return false;
-        }
+$("#ctlBtn").on( 'click', function() {  
+    uploader.upload();  
+  });  
 
-        //获取文件名
-        var index2 = file.lastIndexOf("\\");
-        if(index < 0) {
-            index2 = file.lastIndexOf("/");
-        }
-        var filename = file.substring(index2 + 1, file.length);
-        console.log(filename);
-}
+uploader.on( 'fileQueued', function( file ) {
+    $("#thelist").append( '<div id="' + file.id + '" class="item">' +
+        '<h4 class="info">' + file.name + '</h4>' +
+        '<p class="state">等待上传...</p>' +
+    '</div>' );
+});
+
+uploader.on( 'uploadProgress', function( file, percentage ) {
+    var $li = $( '#'+file.id ),
+        $percent = $li.find('.progress .progress-bar');
+
+    // 避免重复创建
+    if ( !$percent.length ) {
+        $percent = $('<div class="progress progress-striped active">' +
+          '<div class="progress-bar" role="progressbar" style="width: 0%">' +
+          '</div>' +
+        '</div>').appendTo( $li ).find('.progress-bar');
+    }
+
+    $li.find('p.state').text('上传中');
+
+    $percent.css( 'width', percentage * 100 + '%' );
+});
+
+uploader.on( 'uploadSuccess', function( file ) {
+    $( '#'+file.id ).find('p.state').text('已上传');
+});
+
+uploader.on('uploadError', function( file ,reason ) {
+    $( '#'+file.id ).find('p.state').text("导入失败："+errorMessage.error);
+});
+//导入完成后的检测
+uploader.on( 'uploadAccept', function( file,ret ) {
+      errorMessage=ret;
+});
+//完成后删进度条
+uploader.on( 'uploadComplete', function( file ) {  
+    $( '#'+file.id ).find('.progress').remove();  
+});  
+//-----------------------------------------------------------------------------------------
 
 $(function () {
     Feng.initValidator("sampleInfoForm", SampleInfoDlg.validateFields);
 
+    // 注册图片上传
     var pictureUpload = new $WebUpload("picture");
     pictureUpload.setUploadBarId("progressBar");
     pictureUpload.init();
-
-    //是否检测成功
-    var checkSuccess = false;
-
-    //检测文件类型
-        var file = $("#uploadFile").val();
-        console.log("文件路径："+file);
-        if(file == '' || file == null) {
-            $("#hintInfo").html("<span style='color:red;'>请选择所要上传的文件！</span>");
-            return false;
-        }
-
-        var index = file.lastIndexOf(".");
-        var ext = file.substring(index + 1, file.length);
-        console.log("文件类型："+ext);
-
-        if(ext != "xlxs") {
-            return false;
-        }
-
-        //获取文件名
-        var index2 = file.lastIndexOf("\\");
-        if(index < 0) {
-            index2 = file.lastIndexOf("/");
-        }
-        var filename = file.substring(index2 + 1, file.length);
-        console.log(filename);
 });

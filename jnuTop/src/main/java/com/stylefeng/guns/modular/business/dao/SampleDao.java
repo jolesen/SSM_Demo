@@ -3,6 +3,8 @@ package com.stylefeng.guns.modular.business.dao;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
 import com.stylefeng.guns.modular.business.entity.Sample;
@@ -15,8 +17,25 @@ import com.stylefeng.guns.modular.business.entity.Sample;
  */
 public interface SampleDao extends BaseMapper<Sample>{
 
-    List<Map<String, Object>> selectSamples();
-    void deleteById(Integer id);
-
+    
+    /**
+     * 通过id删除样本信息
+     * @author 罗健金
+     * @date 2017年8月17日
+     * @param id
+     * @return 
+     */
+    int deleteById( @Param("id") Integer id);
+    
+    int upDateDeleteById( @Param("id") Integer id);
+    
+    /**
+     * 通过条件查询样本信息
+     * @author 罗健金
+     * @date 2017年8月17日
+     * @param condition
+     * @return
+     */
+    List<Map<String, Object>> selectSamplesByCondition( @Param("condition") String condition);
 
 }

@@ -20,7 +20,7 @@
     </label>
     <div class="col-sm-9">
         <input type="text" class="form-control layer-date"
-               onclick="laydate({istime: ${isTime}, format: '${pattern}'})" id="${id}" placeholder="${name}" title="${name}"/>
+               onclick="laydate({istime: ${isTime}, format: '${pattern}'})" id="${id}" placeholder="${name}" title="${name}" />
     </div>
 </div>
 @if(isNotEmpty(underline) && underline == 'true'){

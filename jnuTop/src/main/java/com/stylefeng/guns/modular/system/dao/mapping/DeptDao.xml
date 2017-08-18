@@ -21,5 +21,9 @@
 		</if>
 		order by num ASC
 	</select>
+	
+	<delete id="deleteDeptById">
+		delete from dm_relation where dept_id = #{deptId}
+	</delete>
 
 </mapper>
