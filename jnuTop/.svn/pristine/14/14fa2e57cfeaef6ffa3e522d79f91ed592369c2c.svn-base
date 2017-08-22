@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.business.dao.SampleDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.modular.business.entity.Sample">
+        <id column="sample_id" property="sampleId" />
+        <result column="detection_item" property="detectionItem" />
+        <result column="lab_code" property="labCode" />
+        <result column="sample_number" property="sampleNumber" />
+        <result column="subject_name" property="subjectName" />
+        <result column="salesman" property="salesman" />
+        <result column="accept_date" property="acceptDate" />
+        <result column="sample_type" property="sampleType" />
+        <result column="transport_condition" property="transportCondition" />
+        <result column="blood_temperature" property="bloodTemperature" />
+        <result column="expected_report_time" property="expectedReportTime" />
+        <result column="remark" property="remark" />
+        <result column="sample_source" property="sampleSource" />
+        <result column="extracted" property="extracted" />
+        <result column="sample_storage" property="sampleStorage" />
+        <result column="detection_duration" property="detectionDuration" />
+        <result column="picture" property="picture" />
+        <result column="login_name" property="loginName" />
+        <result column="sample_status" property="sampleStatus" />
+        <result column="status_remark" property="statusRemark" />
+        <result column="subject_age" property="subjectAge" />
+        <result column="subject_sex" property="subjectSex" />
+        <result column="detection_tumors" property="detectionTumors" />
+        <result column="extracted_control_blood" property="extractedControlBlood" />
+        <result column="blood_collection_date" property="bloodCollectionDate" />
+        <result column="plasma_separation" property="plasmaSeparation" />
+    </resultMap>
+
+	<sql id="All_Column_List">
+		sample_id,detection_item,lab_code,sample_number,subject_name,salesman,accept_date,sample_type,transport_condition,blood_temperature,
+		expected_report_time,remark,sample_source,extracted,sample_storage,detection_duration,picture,login_name,sample_status,status_remark,
+		subject_age,subject_sex,detection_tumors,extracted_control_blood,blood_collection_date,plasma_separation
+	</sql >
+	<sql id="Base_Column_List">
+	sample_id, detection_item,
+	lab_code,sample_number,subject_name,salesman,accept_date,sample_type,transport_condition,blood_temperature,
+	expected_report_time,remark,sample_source,extracted,sample_storage,detection_duration
+    </sql>
+
+
+<!--  通过条件查询样本信息 -->
+<select id="selectSamplesByCondition" parameterType="string"
+	resultType="map">
+	select
+	<include refid="Base_Column_List" />
+	from t_sample
+	<where>
+		<if test="condition != null and condition != ''">
+			detection_item like concat('%', #{condition}, '%')
+			or lab_code like concat('%', #{condition}, '%')
+			or sample_number like concat('%', #{condition}, '%')
+			or subject_name like concat('%', #{condition}, '%')
+			or salesman like concat('%', #{condition}, '%')
+			or sample_type like concat('%', #{condition}, '%')
+			or transport_condition like concat('%', #{condition}, '%')
+			or blood_temperature like concat('%', #{condition}, '%')
+			or sample_source like concat('%', #{condition}, '%')
+			or extracted like concat('%', #{condition}, '%')
+			or sample_storage like concat('%', #{condition}, '%')
+		</if>
+	</where> 
+	
+	<where>
+	 and deleted=0
+	</where>
+	 
+</select>
+
+
+<!-- 通过id删除样本信息 -->
+<delete id="deleteById" parameterType="int">
+<!-- 	delete from t_sample where sample_id = #{id}  -->
+	update t_sample set deleted = 1 where sample_id = #{id}
+</delete>
+
+
+<!-- 将样本删除修改为样本状态更新，变成灰色 -->
+<delete id="updateDeleteById" parameterType="int" >
+		update t_sample set deleted = 1 where sample_id = #{id}
+</delete>
+
+
+
+</mapper>
