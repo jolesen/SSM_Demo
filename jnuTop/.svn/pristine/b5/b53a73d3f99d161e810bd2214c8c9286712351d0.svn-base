@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.system.dao.RecordDao">
+
+    <sql id="Record_Column_List">
+        record_id recordId,
+        user_account userAccount,
+        createtime,
+        biz_type bizType,
+        biz_id bizId,
+        message
+    </sql>
+
+    <select id="listBizRecords" resultType="map">
+        SELECT
+        <include refid="Record_Column_List"></include>
+        FROM biz_record
+        <where>
+            <if test="bizType!=null and bizType!='' and bizId!=null and bizId !=''">
+                AND biz_type=#{bizType} AND biz_id=#{bizId}
+            </if>
+        </where>
+        ORDER BY createtime DESC
+    </select>
+
+</mapper>

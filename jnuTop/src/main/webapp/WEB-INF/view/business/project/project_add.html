@@ -7,11 +7,22 @@
 
             <div class="row">
                 <div class="col-sm-6 b-r">
-                    <#input id="name" name="项目名称" underline="true" />
+                    <#IconInput id="name" name="项目名称" underline="true" />
                 </div>
 
                 <div class="col-sm-6">
-                    <#input id="num" name="顺序" underline="true" />
+                    <#IconInput id="isWorkingday" name="日期类型" underline="true" list="dateList"  />
+                     <datalist id="dateList">
+                        <option  value="工作日"/>
+                        <option value="自然日"/>
+                        
+                    </datalist>
+                </div>
+                 <div class="col-sm-6">
+                    <#IconInput id="durationTime" name="所需天数" underline="true" />
+                </div>
+                 <div class="col-sm-6">
+                    <#IconInput id="projectOrder" name="顺序" underline="true" />
                 </div>
             </div>
 

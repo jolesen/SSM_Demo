@@ -30,17 +30,18 @@
         <result column="extracted_control_blood" property="extractedControlBlood" />
         <result column="blood_collection_date" property="bloodCollectionDate" />
         <result column="plasma_separation" property="plasmaSeparation" />
+        <result column="deleted" property="deleted" />
     </resultMap>
 
 	<sql id="All_Column_List">
 		sample_id,detection_item,lab_code,sample_number,subject_name,salesman,accept_date,sample_type,transport_condition,blood_temperature,
 		expected_report_time,remark,sample_source,extracted,sample_storage,detection_duration,picture,login_name,sample_status,status_remark,
-		subject_age,subject_sex,detection_tumors,extracted_control_blood,blood_collection_date,plasma_separation
+		subject_age,subject_sex,detection_tumors,extracted_control_blood,blood_collection_date,plasma_separation,deleted
 	</sql >
 	<sql id="Base_Column_List">
 	sample_id, detection_item,
 	lab_code,sample_number,subject_name,salesman,accept_date,sample_type,transport_condition,blood_temperature,
-	expected_report_time,remark,sample_source,extracted,sample_storage,detection_duration
+	expected_report_time,remark,sample_source,extracted,sample_storage,detection_duration,deleted
     </sql>
 
 
@@ -72,18 +73,25 @@
 	 
 </select>
 
+<!--  通过条件查询样本信息 -->
+<select id="selectByCondition" parameterType="string"
+	resultType="com.stylefeng.guns.modular.business.entity.Sample">
+	select
+	<include refid="Base_Column_List" />
+	from t_sample
+	<where>
+			detection_item = #{detection_item} and sample_number = #{sample_number}
+	</where>  
+</select>
 
 <!-- 通过id删除样本信息 -->
-<delete id="deleteById" parameterType="int">
+<update id="deleteById_self" parameterType="int">
 <!-- 	delete from t_sample where sample_id = #{id}  -->
 	update t_sample set deleted = 1 where sample_id = #{id}
-</delete>
+</update>
 
 
-<!-- 将样本删除修改为样本状态更新，变成灰色 -->
-<delete id="updateDeleteById" parameterType="int" >
-		update t_sample set deleted = 1 where sample_id = #{id}
-</delete>
+
 
 
 

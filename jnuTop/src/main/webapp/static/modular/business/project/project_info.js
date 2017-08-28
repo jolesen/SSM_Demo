@@ -11,7 +11,7 @@ var ProjectInfoDlg = {
                 }
             }
         },
-        num: {
+        projectOrder: {
             validators: {
                 notEmpty: {
                     message: '顺序不能为空'
@@ -60,7 +60,7 @@ ProjectInfoDlg.close = function() {
  * 收集数据
  */
 ProjectInfoDlg.collectData = function() {
-    this.set('id').set('name').set('num');
+    this.set('id').set('name').set('projectOrder').set('isWorkingday').set('durationTime').set('isUsed');
 }
 
 /**
@@ -104,6 +104,10 @@ ProjectInfoDlg.editSubmit = function() {
     this.clearData();
     this.collectData();
 
+   if (!this.validate()) {
+        return;
+    }
+
     //提交信息
     var ajax = new $ax(Feng.ctxPath + "/project/update", function(data){
         Feng.success("修改成功!");
@@ -116,6 +120,7 @@ ProjectInfoDlg.editSubmit = function() {
     ajax.start();
 }
 
+//校验处理函数  需要在被校验的div中添加id 
 $(function() {
     Feng.initValidator("projectInfoForm", ProjectInfoDlg.validateFields);
 });

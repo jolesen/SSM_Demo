@@ -1,0 +1,18 @@
+@layout("/common/_container.html"){
+<div class="ibox float-e-margins">
+	<div class="ibox-content">
+	<input type="hidden" id="SampleId" value="${SampleId}">	
+     <div id="uploader" class="wu-example">
+    <!--用来存放文件信息-->
+    <div id="attachMentlist" class="uploader-list">
+    </div>
+    <div class="btns row">
+        <div  class = " col-sm-2 col-sm-offset-4" id="AttachmentPicker" name="uploadAttachment">选择文件 </div>
+        <div class = " col-sm-3"><button id="attachMentBtn" class="btn btn-default">开始上传</button></div>
+    </div>
+</div>
+
+	</div>
+</div>
+<script src="${ctxPath}/static/modular/business/sample/sample_info.js"></script>
+@}

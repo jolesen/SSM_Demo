@@ -1,0 +1,54 @@
+package com.stylefeng.guns.modular.business.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.stylefeng.guns.modular.business.entity.Project;
+
+/**
+ * 项目管理Dao
+ *
+ * @author honor
+ * @Date 2017-08-17 13:48:19
+ */
+public interface ProjectDao extends BaseMapper<Project> {
+
+    /**
+     * 获取项目表
+     * @author honor
+     * @param condition
+     * @return
+     */
+    List<Map<String, Object>> list(@Param("condition") String condition);
+
+    /**
+     *  项目恢复 既是将项目从未启用状态改为启用状态  即 将is_used改为1
+     * @author 罗健金
+     * @date 2017年8月21日
+     * @param projectId
+     * @return
+     */
+    int restoreById( @Param("id") Integer projectId);
+    /**
+     *  项目删除 既是将项目从数据库中删除, 如果其他关联表中有数据 则不能删除
+     * @author 罗健金
+     * @date 2017年8月21日
+     * @param projectId
+     * @return
+     */
+    int deleteById( @Param("id") Integer projectId);
+
+    /**
+     *  项目暂停 既是将项目从启用状态改为未启用状态    即 将is_used改为0
+     * @author 罗健金
+     * @date 2017年8月21日
+     * @param projectId
+     * @return
+     */
+    void suspendById( @Param("id") Integer projectId);
+
+   
+}

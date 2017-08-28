@@ -1,0 +1,16 @@
+package com.stylefeng.guns.modular.business.service.impl;
+
+import org.springframework.stereotype.Service;
+import com.stylefeng.guns.modular.business.service.ISampleUsedService;
+
+/**
+ * 样本领用Service
+ *
+ * @author
+ * @Date 2017-08-24 10:05:50
+ */
+@Service
+public class SampleUsedServiceImpl implements ISampleUsedService {
+
+
+}

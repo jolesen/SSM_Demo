@@ -1,0 +1,288 @@
+/**
+ * 初始化样本详情对话框
+ */
+
+var errorMessage;//用来获取导入文件后的返回结果
+var SampleInfoDlg = {
+	sampleInfoData : {},
+    validateFields: {
+        labCode:{
+            validators: {
+                notEmpty: {
+                    message: '实验室编号不能为空'
+                },
+                stringLength: {
+                    max: 20,
+                    message: '实验室编号长度不能超过20位'
+                },
+                regexp: {
+                    regexp: /^[a-zA-Z0-9]+$/,
+                    message: '实验室编号只能包含数字、大写和小写字母'
+                }
+            }
+        },
+        sampleNumber:{
+            validators: {
+                notEmpty: {
+                    message: '样本编号不能为空'
+                },
+                stringLength: {
+                    max: 20,
+                    message: '样本编号长度不能超过20位'
+                },
+                regexp: {
+                    regexp: /^[a-zA-Z0-9]+$/,
+                    message: '实验室编号只能包含数字、大写和小写字母'
+                }
+            }
+        },
+        detectionItem:{
+            validators: {
+                notEmpty: {
+                    message: '检测项目不能为空'
+                }
+            }
+        },
+        subjectName:{
+            validators: {
+                notEmpty: {
+                    message: '受检者不能为空'
+                },
+                stringLength: {
+                    max: 15,
+                    message: '受检者姓名长度不能超过15位'
+                }
+            }
+        },
+        salesman:{
+            validators: {
+                notEmpty: {
+                    message: '销售员姓名不能为空'
+                },
+                stringLength: {
+                    max: 15,
+                    message: '销售员姓名长度不能超过15位'
+                }
+            }
+        },
+        detectionDuration:{
+            validators: {
+                regexp:{
+                    regexp:/^\d+$/,
+                    message:'检测所需时间只能是大于0的整数'
+                }
+            }
+        },
+        acceptDate:{
+            validators: {
+                date:{
+                    format:'YYYY-MM-DD HH:mm:ss',
+                    message:'日期格式不正确'
+                }
+            }
+        },
+        expectedReportTime:{
+            validators: {
+                date:{
+                    format:'YYYY-MM-DD HH:mm:ss',
+                    message:'日期格式不正确'
+                }
+            }
+        }
+	}
+};
+
+/**
+ * 清除数据
+ */
+SampleInfoDlg.clearData = function() {
+	this.sampleInfoData = {};
+}
+
+/**
+ * 设置对话框中的数据
+ *
+ * @param key 数据的名称
+ * @param val 数据的具体值
+ */
+SampleInfoDlg.set = function(key, val) {
+	this.sampleInfoData[key] = (typeof val == "undefined") ? $("#" + key).val() : val;
+	return this;
+}
+
+/**
+ * 设置对话框中的数据
+ *
+ * @param key 数据的名称
+ * @param val 数据的具体值
+ */
+SampleInfoDlg.get = function(key) {
+	return $("#" + key).val();
+}
+
+/**
+ * 关闭此对话框
+ */
+SampleInfoDlg.close = function() {
+	parent.layer.close(window.parent.Sample.layerIndex);
+}
+
+/**
+ * 收集数据
+ */
+SampleInfoDlg.collectData = function() {
+    this.set('sampleId').set('labCode').set('sampleNumber').set('detectionItem').set('salesman').set('subjectName')
+        .set('acceptDate').set('detectionDuration').set('expectedReportTime').set('extracted').set('sampleType')
+        .set('plasmaSeparation').set('transportCondition').set('sampleStorage').set('remark').set('picture');
+}
+
+/**
+ * 验证数据是否为空
+ */
+SampleInfoDlg.validate = function () {
+    $('#sampleInfoForm').data("bootstrapValidator").resetForm();
+    $('#sampleInfoForm').bootstrapValidator('validate');
+    return $("#sampleInfoForm").data('bootstrapValidator').isValid();
+};
+
+/**
+ * 提交添加
+ */
+SampleInfoDlg.addSubmit = function() {
+	this.clearData();
+	this.collectData();
+
+	// 判断是否能够提交
+    if (!this.validate()) {
+        return;
+    }
+
+	//提交信息
+	var ajax = new $ax(Feng.ctxPath + "/sample/add", function(data) {
+		Feng.success("添加成功!");
+		window.parent.Sample.table.refresh();
+		SampleInfoDlg.close();
+	}, function(data) {
+		Feng.error("添加失败!" + data.responseJSON.message + "!");
+	});
+	ajax.set(this.sampleInfoData);
+	ajax.start();
+}
+
+
+/**
+ * 提交修改
+ */
+SampleInfoDlg.editSubmit = function() {
+	this.clearData();
+	this.collectData();
+
+    // 判断是否能够提交
+    if (!this.validate()) {
+        return;
+    }
+
+	//提交信息
+	var ajax = new $ax(Feng.ctxPath + "/sample/update", function(data) {
+		Feng.success("修改成功!");
+		window.parent.Sample.table.refresh();
+		SampleInfoDlg.close();
+	}, function(data) {
+		Feng.error("修改失败!" + data.responseJSON.message + "!");
+	});
+	ajax.set(this.sampleInfoData);
+	ajax.start();
+}
+
+
+/*
+ * 以下到下划线为提交Excel表格的js
+ */
+
+var uploader = WebUploader.create({
+
+    // swf文件路径
+    swf: Feng.ctxPath
+	+ '/static/css/plugins/webuploader/Uploader.swf',
+    // 文件接收服务端。
+    server: Feng.ctxPath + '/sample/importExcel',
+    fileVal: "uploadFile",
+    accept : {
+		title : 'Excel',
+		extensions : 'xlsx',
+        mimeTypes : 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	},
+	formData: {  
+		entityName: "com.stylefeng.guns.modular.business.entity.Sample",
+		map:"检测项目,detectionItem,样本编号,sampleNumber,报告所需时间,detectionDuration,实验室编码,labCode,受检者姓名,subjectName,销售,salesman,收样日期,acceptDate,样本类型,sampleType,运输条件,transportCondition,血液到样温度,bloodTemperature,理论出报告时间,expectedReportTime,备注,remark,样本来源,sampleSource,是否需要提取,extracted,样本储存位置,sampleStorage",
+		requiredField:"detectionItem,sampleNumber,detectionDuration",
+		specialfieldName:"acceptDate,expectedReportTime,labCode",
+		title:"Sample",
+    },  
+    pick: '#picker',
+//    auto: true, //选择文件后自动上传
+    resize: false,
+    
+    duplicate:true//是否可以重复上传
+});
+
+$("#ctlBtn").on( 'click', function() {
+    uploader.upload();  
+  });  
+
+//当文件进入队列时
+uploader.on( 'fileQueued', function( file ) {
+    $("#thelist").append( '<div id="' + file.id + '" class="item">' +
+        '<h4 class="info">' + file.name + '</h4>' +
+        '<p class="state">等待上传...</p>' +
+    '</div>' );
+    $("#ctlBtn").css({'background-color': '#1ab394'});
+});
+
+//当文件上传流程被触发时
+uploader.on( 'startUpload', function( file ) {
+    $("#ctlBtn").css({'background-color': '#c2c2c2'});
+});
+
+uploader.on( 'uploadProgress', function( file, percentage ) {
+    var $li = $( '#'+file.id ),
+        $percent = $li.find('.progress .progress-bar');
+
+    // 避免重复创建
+    if ( !$percent.length ) {
+        $percent = $('<div class="progress progress-striped active">' +
+          '<div class="progress-bar" role="progressbar" style="width: 0%">' +
+          '</div>' +
+        '</div>').appendTo( $li ).find('.progress-bar');
+    }
+
+    $li.find('p.state').text('上传中');
+
+    $percent.css( 'width', percentage * 100 + '%' );
+});
+
+uploader.on( 'uploadSuccess', function( file ) {
+    $( '#'+file.id ).find('p.state').text('已上传');
+    window.parent.Sample.table.refresh();
+});
+
+uploader.on('uploadError', function( file ,reason ) {
+    $( '#'+file.id ).find('p.state').text("导入失败："+errorMessage.error);
+});
+//导入完成后的检测
+uploader.on( 'uploadAccept', function( file,ret ) {
+      errorMessage=ret;
+});
+//完成后删进度条
+uploader.on( 'uploadComplete', function( file ) {  
+    $( '#'+file.id ).find('.progress').remove();  
+});  
+//-----------------------------------------------------------------------------------------
+
+$(function () {
+    Feng.initValidator("sampleInfoForm", SampleInfoDlg.validateFields);
+    // 注册图片上传
+    var pictureUpload = new $WebUpload("picture");
+    pictureUpload.setUploadBarId("progressBar");
+    pictureUpload.init();
+});

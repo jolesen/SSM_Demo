@@ -1,0 +1,103 @@
+package com.stylefeng.guns.modular.system.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.stylefeng.guns.common.persistence.dao.UserMapper;
+import com.stylefeng.guns.common.persistence.model.User;
+import com.stylefeng.guns.modular.system.dao.NoticeDao;
+import com.stylefeng.guns.modular.system.dao.UserMgrDao;
+import com.stylefeng.guns.modular.system.service.INoticeService;
+
+/**
+ * 通知服务实现类
+ * 
+ * @author zmj
+ * @since 2017年8月24日下午4:13:24
+ *
+ */
+@Service
+public class NoticeServiceImpl implements INoticeService {
+
+	@Resource
+	NoticeDao noticeDao;
+
+	@Resource
+	UserMapper userMapper;
+
+	@Resource
+	UserMgrDao userDao;
+
+	/**
+	 * 添加用户通知关系
+	 * 
+	 * @param noticeId
+	 *            通知Id
+	 * @param depts
+	 *            部门ID集合
+	 * @param users
+	 *            用户Id集合
+	 * @param roles
+	 *            角色Id集合
+	 * @author zmj
+	 * @since 2017年8月24日下午4:13:15
+	 */
+	@Override
+	public void addRelation(Integer noticeId, List<Integer> depts, List<Integer> users, List<Integer> roles) {
+		// 保存所有要发送的用户id
+		Set<Integer> sendSet = new HashSet<Integer>();
+		if (depts != null) {
+			for (Integer dept : depts) {
+				List<Map<String, Object>> deptlList = userDao.selectUsers(null, null, null, null, dept);
+				for (Iterator<Map<String, Object>> iterator = deptlList.iterator(); iterator.hasNext();) {
+					Map<String, Object> userMap = (Map<String, Object>) iterator.next();
+					sendSet.add((Integer) userMap.get("id"));
+				}
+			}
+		}
+		if (users != null) {
+			sendSet.addAll(users);
+		}
+
+		if (roles != null) {
+			for (int roleId : roles) {
+				List<User> userList = userDao.selectUserByRoleId(roleId);
+				for (User user : userList) {
+					sendSet.add(user.getId());
+				}
+			}
+		}
+		// System.out.println(sendSet);
+
+		for (int userId : sendSet) {
+			noticeDao.insertRelation(noticeId, userId);
+		}
+
+	}
+
+	/**
+	 * 得到所有用户Id
+	 * 
+	 * @return 所有用户id List<Integer>
+	 * 
+	 * @author zmj
+	 * @since 2017年8月23日下午3:59:06
+	 */
+	public List<Integer> getAllUserId() {
+		List<User> users = userMapper.selectList(null);
+		List<Integer> lists = new ArrayList<Integer>();
+		for (User user : users) {
+			lists.add(user.getId());
+		}
+		return lists;
+	}
+
+}

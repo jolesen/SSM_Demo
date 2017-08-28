@@ -27,8 +27,9 @@
 	</select>
 
 	<select id="getMenuIdsByDeptId" resultType="int">
-		select menu_id from
-		dm_relation where dept_id = #{deptId}
+		select menuid from relation where roleid =
+		any(select id from role where deptid = #{deptId})
+		
 	</select>
 	
 	<select id="menuTreeList" resultType="com.stylefeng.guns.common.node.ZTreeNode">

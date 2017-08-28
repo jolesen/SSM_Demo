@@ -1,0 +1,491 @@
+package com.stylefeng.guns.modular.business.service.impl;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.HashMap;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.alibaba.druid.sql.ast.statement.SQLIfStatement.Else;
+import com.alibaba.druid.sql.ast.statement.SQLIfStatement.ElseIf;
+import com.alibaba.fastjson.JSONObject;
+import com.stylefeng.guns.common.constant.tips.Tip;
+import com.stylefeng.guns.common.exception.BizExceptionEnum;
+import com.stylefeng.guns.common.exception.BussinessException;
+import com.stylefeng.guns.common.exception.DBErrorException;
+import com.stylefeng.guns.common.exception.NonullException;
+import com.stylefeng.guns.common.exception.RepeatException;
+import com.stylefeng.guns.modular.business.dao.SampleDao;
+import com.stylefeng.guns.modular.business.entity.Sample;
+import com.stylefeng.guns.modular.business.service.IExcelDBCheckService;
+import com.stylefeng.guns.modular.business.service.IProjectService;
+import com.stylefeng.guns.modular.business.service.ISampleService;
+import com.stylefeng.guns.modular.business.util.ExcelReader;
+import com.stylefeng.guns.modular.business.util.ExportExcel;
+import com.stylefeng.guns.modular.business.util.ImportExcel;
+import com.stylefeng.guns.common.constant.tips.Tip;
+import com.stylefeng.guns.modular.business.util.*;
+
+/**
+ * 样本Service
+ *
+ * @author djb
+ * @Date 2017-08-09 14:40:25
+ */
+@Service
+public class SampleServiceImpl implements ISampleService {
+
+	@Resource
+	private SampleDao sampleDao;
+	@Resource
+	private IExcelDBCheckService excelDBCheck;
+	@Resource
+	private IProjectService projectService;
+	
+	@Resource
+    private SampleDao sampleDao;
+
+	@Override
+	public void add(Sample sample) {
+		
+
+		try {
+			sampleDao.insert(sample);
+		} catch (Exception e) {
+			throw new BussinessException(BizExceptionEnum.SERVER_ERROR);
+		}
+		
+
+	}
+
+	@Override
+	public String checkInput(Sample sample){
+		if(sample.getSampleStorage() == null){
+	public String checkInput(Sample sample) {
+		if (sample.getSampleStorage() == null) {
+			return "sampleStorage";
+		}
+		else if (sample.getDetectionItem() == null) {
+		} else if (sample.getDetectionItem() == null) {
+			return "detectionItem";
+		}else if (sample.getLabCode() == null) {
+		} else if (sample.getLabCode() == null) {
+			return "labCode";
+		}else if(sample.getSampleNumber() == null){
+		} else if (sample.getSampleNumber() == null) {
+			return "sampleNumber";
+		}else if (sample.getSubjectName() == null) {
+		} else if (sample.getSubjectName() == null) {
+			return "subjectName";
+		}
+		return "success";
+	}
+
+    public Sample findSampleById(Integer sample_id) {
+        return sampleDao.selectById(sample_id);
+    }
+    
+    public String inputSamples(List<Sample> list, int start, int end) throws Exception {
+        System.out.println("准备插入数据库 start:"+start+" end:"+end);
+        // TODO Auto-generated method stub
+        int i=0;
+	public Sample findSampleById(Integer sample_id) {
+		return sampleDao.selectById(sample_id);
+	}
+
+    try{
+            for(i = start; i<=end ;i++){
+                sampleDao.insert(list.get(i));
+            }
+        }catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("第"+(i+1)+"条记录数据重复，"+e.getMessage());
+            throw new RepeatException(i);
+        }
+        return "SUCCEED";
+    }
+	public String inputSamples(List<Sample> list, int start, int end) throws Exception {
+		System.out.println("准备插入数据库 start:" + start + " end:" + end);
+		// TODO Auto-generated method stub
+		int i = 0;
+
+    
+    public void deleteById(String sampleId) {
+        //将传过来的id串拆分成数组,再循环删除 即 传过来的可能是 "1,2,3,4,5"
+        if(sampleId != null && !"".equals(sampleId)){
+            String[] sampleIds = sampleId.split(",");
+                try {
+                    for (String id : sampleIds) {
+                        sampleDao.deleteById(Integer.parseInt(id));
+                      
+                    }
+                } catch (Exception e) {
+                  throw new BussinessException(BizExceptionEnum.REQUEST_NULL);
+               
+            }
+        }
+		try {
+			for (i = start; i <= end; i++) {
+				sampleDao.insert(list.get(i));
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("第" + (i + 1) + "条记录数据重复，" + e.getMessage());
+			throw new RepeatException(i);
+		}
+		return "SUCCEED";
+	}
+
+
+
+    }
+    
+    public int updateSample(Sample sample) {
+        int i = sampleDao.updateById(sample);
+       
+        return i;
+        
+    }
+	public void deleteById(String sampleId) {
+		// 将传过来的id串拆分成数组,再循环删除 即 传过来的可能是 "1,2,3,4,5"
+		if (sampleId != null && !"".equals(sampleId)) {
+			String[] sampleIds = sampleId.split(",");
+			try {
+				for (String id : sampleIds) {
+					sampleDao.deleteById(Integer.parseInt(id));
+
+    public void setSampleDao(SampleDao sampleDao) {
+        this.sampleDao = sampleDao;
+    }
+				}
+			} catch (Exception e) {
+				throw new BussinessException(BizExceptionEnum.REQUEST_NULL);
+
+			}
+		}
+
+	}
+
+	public int updateSample(Sample sample) {
+		int i = sampleDao.updateById(sample);
+
+		return i;
+
+	}
+
+	public void setSampleDao(SampleDao sampleDao) {
+		this.sampleDao = sampleDao;
+	}
+
+	public List<Sample> selectListByIds(String Ids) throws Exception {
+		List<Sample> list=new ArrayList<Sample>();
+		if(Ids != null && !"".equals(Ids)){
+            String[] sampleIds = Ids.split(",");
+            for (String id : sampleIds) {
+            	Sample sample=sampleDao.selectById(Integer.parseInt(id));
+            	if(sample==null) throw new Exception("id为："+id+"为空！");
+            	list.add(sample);
+            }
+        }
+		List<Sample> list = new ArrayList<Sample>();
+		if (Ids != null && !"".equals(Ids)) {
+			String[] sampleIds = Ids.split(",");
+			for (String id : sampleIds) {
+				Sample sample = sampleDao.selectById(Integer.parseInt(id));
+				if (sample == null)
+					throw new Exception("id为：" + id + "为空！");
+				list.add(sample);
+			}
+		}
+		return list;
+	}
+
+    public <T> void insertExcel( @RequestParam("uploadFile") MultipartFile  uploadFile,String entityName,String map,int requiredNum) throws Exception {
+	public <T> void insertExcel(@RequestParam("uploadFile") MultipartFile uploadFile, String entityName, String map,
+			int requiredNum, String title, String specialfieldName) throws Exception {
+
+    	 List<T> list;
+         Object aObject;
+         
+		List<T> list;
+		Object aObject;
+
+        try {
+        	HashMap<String, String>  mapping=stringToMap(map); 
+        	System.out.println("转化后的map为： " +mapping.toString());
+        	Class clz=Class.forName(entityName);
+        	list=ImportExcel.inportExcel(uploadFile.getInputStream(),clz,mapping,requiredNum);
+        	insertObject(list, entityName);
+          
+        } catch (NonullException e) {
+        	  System.out.println("错误类型：" + e.getMessage());
+            throw e;
+        } catch (RepeatException e) {
+        	  System.out.println("错误类型：" + e.getMessage());
+            throw e;
+        }catch (Exception e) {
+            System.out.println("错误类型：" + e.getMessage());
+            throw e;
+        }
+     
+    }
+		try {
+			ExcelSpecialHanding handing=new ExcelSpecialHanding(title,projectService);
+			
+			HashMap<String, String> mapping = stringToMap(map);
+			System.out.println("转化后的map为： " + mapping.toString());
+			
+			Class clz = Class.forName(entityName);
+			list = ImportExcel.inportExcel(uploadFile.getInputStream(), clz, mapping, requiredNum,
+					specialfieldName.split(","),handing);
+			excelDBCheck.InsertCheck(list, entityName);
+
+    public JSONObject outputExcel(String ids,String title,String needExports,String exportURL,String exportName) throws Exception{
+    	List<Sample> list;
+    	list=selectListByIds(ids);
+    	
+        try  
+        {       
+        	OutputStream out = new FileOutputStream(exportURL+exportName); 
+        	ExportExcel.exportExcel(title.split(","), list, out,needExports.split(",")); 
+        	out.close();  
+        	System.out.println("excel导出成功！");  
+        } catch (FileNotFoundException e) {  
+        	throw e;
+        } catch (IOException e) {  
+        	throw e;
+        }  
+        JSONObject result=new JSONObject();
+        result.put("filedir", exportURL);
+        result.put("filename",exportName);
+    	return result;
+    }
+    
+    public void ajaxDownload(HttpServletResponse response,HttpServletRequest request) throws Exception {
+    	System.out.println("准备下载");
+        InputStream ins = null;
+        BufferedInputStream bins = null;
+        OutputStream outs = null;
+        BufferedOutputStream bouts = null;
+        String file_name = request.getParameter("filename").trim(); // 文件名
+        String file_dir = request.getParameter("filedir").trim(); // 文件路径
+        System.out.println("获取到文件路径：" + file_dir + File.separator + file_name);
+        try {
+            if (!"".equals(file_name)) {
+                File file = new File(file_dir + File.separator + file_name);
+                if (file.exists()) {
+                    ins = new FileInputStream(file_dir + File.separator
+                            + file_name);
+                    bins = new BufferedInputStream(ins);
+                    outs = response.getOutputStream();
+                    bouts = new BufferedOutputStream(outs);
+                    response.setContentType("application/x-download");
+                    response.setHeader(
+                            "Content-disposition",
+                            "attachment;filename="
+                                    + URLEncoder.encode(file_name, "UTF-8"));
+                    int bytesRead = 0;
+                    byte[] buffer = new byte[8192];
+                    while ((bytesRead = bins.read(buffer, 0, 8192)) != -1) {
+                        bouts.write(buffer, 0, bytesRead);
+                    }
+                    bouts.flush();
+                } else {
+                	throw new DBErrorException("下载的文件不存在！", "下载的文件不存在！");
+                }
+            } else {
+            	throw new DBErrorException("下载文件时发生错误！","下载文件时发生错误！");
+            }
+        } catch (Exception e) {
+        
+        } finally {
+            if (null != ins) {
+                ins.close();
+            }
+            if (null != bins) {
+                bins.close();
+            }
+            if (null != outs) {
+                outs.close();
+            }
+            if (null != bouts) {
+                bouts.close();
+            }
+        }
+    }
+		} catch (NonullException e) {
+			System.out.println("错误类型：" + e.getMessage());
+			throw e;
+		} catch (RepeatException e) {
+			System.out.println("错误类型：" + e.getMessage());
+			throw e;
+		} catch (Exception e) {
+			System.out.println("错误类型：" + e.getMessage());
+			throw e;
+		}
+
+	}
+
+	public JSONObject outputExcel(String ids, String title, String needExports, String exportURL, String exportName)
+			throws Exception {
+		List<Sample> list;
+		list = selectListByIds(ids);
+
+		try {
+			OutputStream out = new FileOutputStream(exportURL + exportName);
+			ExportExcel.exportExcel(title.split(","), list, out, needExports.split(","));
+			out.close();
+			System.out.println("excel导出成功！");
+		} catch (FileNotFoundException e) {
+			throw e;
+		} catch (IOException e) {
+			throw e;
+		}
+		JSONObject result = new JSONObject();
+		result.put("filedir", exportURL);
+		result.put("filename", exportName);
+		return result;
+	}
+
+	public void ajaxDownload(HttpServletResponse response, HttpServletRequest request) throws Exception {
+		System.out.println("准备下载");
+		InputStream ins = null;
+		BufferedInputStream bins = null;
+		OutputStream outs = null;
+		BufferedOutputStream bouts = null;
+		String file_name = request.getParameter("filename").trim(); // 文件名
+		String file_dir = request.getParameter("filedir").trim(); // 文件路径
+		System.out.println("获取到文件路径：" + file_dir + File.separator + file_name);
+		try {
+			if (!"".equals(file_name)) {
+				File file = new File(file_dir + File.separator + file_name);
+				if (file.exists()) {
+					ins = new FileInputStream(file_dir + File.separator + file_name);
+					bins = new BufferedInputStream(ins);
+					outs = response.getOutputStream();
+					bouts = new BufferedOutputStream(outs);
+					response.setContentType("application/x-download");
+					response.setHeader("Content-disposition",
+							"attachment;filename=" + URLEncoder.encode(file_name, "UTF-8"));
+					int bytesRead = 0;
+					byte[] buffer = new byte[8192];
+					while ((bytesRead = bins.read(buffer, 0, 8192)) != -1) {
+						bouts.write(buffer, 0, bytesRead);
+					}
+					bouts.flush();
+				} else {
+					throw new DBErrorException("下载的文件不存在！", "下载的文件不存在！");
+				}
+			} else {
+				throw new DBErrorException("下载文件时发生错误！", "下载文件时发生错误！");
+			}
+		} catch (Exception e) {
+
+		} finally {
+			if (null != ins) {
+				ins.close();
+			}
+			if (null != bins) {
+				bins.close();
+			}
+			if (null != outs) {
+				outs.close();
+			}
+			if (null != bouts) {
+				bouts.close();
+			}
+		}
+	}
+
+	@Override
+	public HashMap<String, String>  stringToMap(String needChange) {
+		
+	    HashMap<String, String> map=new HashMap<String, String>();
+		String[] breakUp=needChange.split(",");
+	public HashMap<String, String> stringToMap(String needChange) {
+
+		for(int i=0;i<breakUp.length;i=i+2){
+			System.out.println(breakUp[i]+" | "+ breakUp[i+1]);
+			map.put(breakUp[i], breakUp[i+1]);
+		HashMap<String, String> map = new HashMap<String, String>();
+		String[] breakUp = needChange.split(",");
+
+		for (int i = 0; i < breakUp.length; i = i + 2) {
+			System.out.println(breakUp[i] + " | " + breakUp[i + 1]);
+			map.put(breakUp[i], breakUp[i + 1]);
+		}
+		return map;
+	}
+
+	@Override
+	public <T> void insertObject(List<T> list, String entityName) throws Exception {
+		int start=0,end=list.size()-1;
+		System.out.println("对象为："+entityName.trim()+" 准备插入数据库 start:"+start+" end:"+end);
+        // TODO Auto-generated method stub
+//		int start = 0, end = list.size() - 1;
+//		System.out.println("对象为：" + entityName.trim() + " 准备插入数据库 start:" + start + " end:" + end);
+//
+//		if (entityName.trim().equals("com.stylefeng.guns.modular.business.entity.Sample")) {
+//			int i = start;
+//			try {
+//				for (; i <= end; i++) {
+//					System.out.println("将要插入：" + ((Sample) list.get(i)).getLabCode());
+//					if(excelDBCheck.InsertCheck((Sample) list.get(i), entityName)){		
+//						sampleDao.insert((Sample) list.get(i));
+//					}
+//					else{
+//					    System.out.println("插入失败");
+//					}
+//						
+//				}
+//			} catch (Exception e) {
+//				// TODO: handle exception
+//				System.out.println("第" + (i + 1) + "条记录数据重复，" + e.getMessage());
+//				throw new RepeatException(i);
+//			}
+//		} else {
+//			System.out.println("没有找到该对象的Dao");
+//			throw new Exception("没有找到该对象的Dao");
+//		}
+
+       if(entityName.trim().equals("com.stylefeng.guns.modular.business.entity.Sample")){
+    	   int i= start;
+    	   try{
+               for(; i<=end ;i++){
+            	   System.out.println("将要插入："+((Sample)list.get(i)).getLabCode());
+                   sampleDao.insert((Sample)list.get(i));
+               }
+           }catch (Exception e) {
+               // TODO: handle exception
+               System.out.println("第"+(i+1)+"条记录数据重复，"+e.getMessage());
+               throw new RepeatException(i);
+           }
+       }else{
+    	   System.out.println("没有找到该对象的Dao");
+    	   throw new Exception("没有找到该对象的Dao");
+       }
+    
+	}
+	
+	
+
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.business.dao.DetectionDao">
+	<select id="selectSamplesByCondition" resultType="map">
+		select * from t_detection
+	</select>
+	<select id="findDetectionById" resultType="com.stylefeng.guns.modular.business.entity.Detection">
+		select * from t_detection where id=#{id}
+	</select>
+	<update id="update">
+		UPDATE t_detection SET sample_id=#{sampleId}, `result`=#{result}, detector_id=#{detectorId}, mutation_site=#{mutationSite}, risk=#{risk}, detection_date=#{detectionDate}, remarks=#{remarks} WHERE id=#{id} 
+	</update>
+</mapper>

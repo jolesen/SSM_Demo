@@ -97,6 +97,23 @@ Dept.search = function () {
     Dept.table.refresh({query: queryData});
 };
 
+/**
+ * 权限配置
+ */
+Dept.assign = function () {
+    if (this.check()) {
+        var index = layer.open({
+            type: 2,
+            title: '权限配置',
+            area: ['300px', '450px'], //宽高
+            fix: false, //不固定
+            maxmin: true,
+            content: Feng.ctxPath + '/dept/dept_assign/' + this.seItem.id
+        });
+        this.layerIndex = index;
+    }
+};
+
 $(function () {
     var defaultColunms = Dept.initColumn();
     var table = new BSTreeTable(Dept.id, "/dept/list", defaultColunms);

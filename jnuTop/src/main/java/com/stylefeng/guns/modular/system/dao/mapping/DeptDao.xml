@@ -22,8 +22,47 @@
 		order by num ASC
 	</select>
 	
-	<delete id="deleteDeptById">
-		delete from dm_relation where dept_id = #{deptId}
+	
+	<delete id="deleteRolesById">
+		delete from relation where roleid = #{roleId}
+	</delete>
+	
+	<delete id="deleteRelationByRoleId">
+		delete from relation where roleid = #{roleId}
 	</delete>
 
+	
+	<delete id="deleteDeptById">
+		delete from dept where id=#{deptId}
+	</delete>
+
+	<update id="deleteRole">
+		delete from role where deptid = #{deptId}
+	</update>
+	
+	<update id="updateUser">
+		update user set deptid = null where deptid = #{deptId}
+	</update>
+	
+	<delete id="deleteRelation">
+		delete from relation where roleid = any(select id from role where deptid = #{deptId})
+	</delete>
+	
+		<select id="selectByDeptId" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM dr_relation WHERE dept_id=1 
+	</select>
+	
+	<select id="selectRoleIdByDeptId" resultType="java.lang.Integer">
+		select role_id from dr_relation where dept_id=#{deptId}
+	</select>
+	
+	
+	<select id="selectById" resultType="com.stylefeng.guns.common.persistence.model.Dept">
+		select * from dept where id=#{deptId}
+	</select>
+
+	
+	<delete id="deleteDeptById">
+		delete from dept where id = #{deptId}
+	</delete>
 </mapper>

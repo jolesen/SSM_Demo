@@ -1,0 +1,30 @@
+package com.stylefeng.guns.modular.business.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Select;
+
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.stylefeng.guns.modular.business.entity.Sample;
+import com.stylefeng.guns.modular.business.entity.SampleExtractedDna;
+
+/**
+ * 
+ * ClassName: SampleExtractedDnaDao <br/> 
+ * Function: TODO 使用注解的方式实现接口方法。 <br/> 
+ * Reason: TODO 简洁. <br/> 
+ * date: 2017年8月24日 上午 09:41:37 <br/> 
+ * 
+ * @author john 
+ * @version  
+ * @since JDK 1.6
+ */
+public interface SampleExtractedDnaDao extends BaseMapper<SampleExtractedDna>{
+
+	@Select("select * from t_sample")
+	List<Sample> list(String condition);
+
+	@Select("select * from t_sample_extracted")
+	List<SampleExtractedDna> listDNA(String condition);
+	
+}

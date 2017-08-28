@@ -16,7 +16,7 @@
 	</select>
 
 	<delete id="deleteRolesById">
-		delete from relation where roleid = #{roleId}
+		delete from role where id = #{roleId}
 	</delete>
 
 	<select id="roleTreeList" resultType="com.stylefeng.guns.common.node.ZTreeNode">
@@ -65,6 +65,33 @@
 		pId,
 		num ASC
 	</select>
+	
+	
+	<insert id="insertRole" >
+		INSERT INTO role ( deptid,name,num,tips,pid) VALUES (#{deptid},#{name},#{num},#{tips},#{pid}) 
+		<selectKey resultType="Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+	</insert>
+	
+	
+	<select id="selectRoleByDepId" resultType="com.stylefeng.guns.common.persistence.model.Role">
+		select * from role where deptid=#{deptId}
+	</select>
+	
+	<select id="selectMenuIdsByRoleId" resultType="java.lang.Integer">
+		SELECT menuid FROM relation WHERE roleid=#{roleId};
+	</select>
+
+
+	<select id="selectById" resultType="com.stylefeng.guns.common.persistence.model.Role">
+		select * from role where id=#{roleId}
+	</select>
+
+	<select id="selectByRoleName" resultType="com.stylefeng.guns.common.persistence.model.Role">
+		select * from role where name='${roleName}'
+	</select>
+	
 
 
 </mapper>

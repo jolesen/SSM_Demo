@@ -76,6 +76,22 @@ MgrUser.openChangeUser = function () {
 };
 
 /**
+ * 点击显示用户详情
+ * @param userAccount
+ */
+MgrUser.openUserDetail = function (userAccount) {
+    var index = layer.open({
+        type: 2,
+        title: '用户详情',
+        area: ['800px', '450px'], //宽高
+        fix: false, //不固定
+        maxmin: true,
+        content: Feng.ctxPath + '/mgr/detail/'+ userAccount,
+    });
+    this.layerIndex = index;
+};
+
+/**
  * 点击角色分配
  * @param
  */

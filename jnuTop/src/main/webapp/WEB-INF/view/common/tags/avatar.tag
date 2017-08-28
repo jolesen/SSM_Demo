@@ -15,11 +15,13 @@
                 @}
         </div>
     </div>
+    @if(isEmpty(withoutUpload)){
     <div class="col-sm-2">
         <div class="head-scu-btn upload-btn" id="${id}BtnId">
             <i class="fa fa-upload"></i>&nbsp;上传
         </div>
     </div>
+    @}
     <input type="hidden" id="${id}" value="${avatarImg!}"/>
 </div>
 @if(isNotEmpty(underline) && underline == 'true'){

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.business.dao.ProjectDao">
+	<select id="list" resultType="map">
+		SELECT
+		id,name,project_order,duration_time,
+		(
+		CASE
+		WHEN (is_used = 1) THEN
+		'启用'
+		ELSE
+		'未启用'
+		END
+		) "is_used" ,
+		project_order
+		FROM t_project 
+		order by
+		project_order asc
+	</select>
+   
+	<delete id="deleteById_self" parameterType="int">
+		delete from t_project where id = #{id}
+	</delete>
+	<update id="suspendById" parameterType="int">
+		UPDATE t_project SET IS_USED = 0 WHERE ID = #{id}
+	</update>
+	<update id="restoreById" parameterType="int">
+		UPDATE t_project SET IS_USED = 1 WHERE ID = #{id}
+	</update>
+</mapper>

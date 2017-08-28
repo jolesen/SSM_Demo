@@ -1,0 +1,136 @@
+package com.stylefeng.guns.modular.system.service.impl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.stylefeng.guns.common.persistence.dao.DeptMapper;
+import com.stylefeng.guns.common.persistence.dao.DeptMenuRelationMapper;
+import com.stylefeng.guns.common.persistence.dao.RelationMapper;
+import com.stylefeng.guns.common.persistence.model.Dept;
+import com.stylefeng.guns.common.persistence.model.Relation;
+import com.stylefeng.guns.common.persistence.model.Role;
+import com.stylefeng.guns.common.persistence.model.User;
+import com.stylefeng.guns.core.util.Convert;
+import com.stylefeng.guns.modular.system.dao.DeptDao;
+import com.stylefeng.guns.modular.system.dao.RoleDao;
+import com.stylefeng.guns.modular.system.dao.UserMgrDao;
+import com.stylefeng.guns.modular.system.service.IDeptService;
+
+/**
+ * 部门功能实现类
+ * 
+ * @author zmj
+ * @since 2017-8-17
+ */
+@Service
+@Transactional
+public class DeptServiceImpl implements IDeptService {
+
+    @Resource
+    DeptMapper deptMapper;
+    
+    @Resource
+    DeptDao deptDao;
+    
+    @Resource
+    DeptMenuRelationMapper dmrelationMapper;
+    
+    @Resource
+    RoleDao roleDao;
+    
+    @Resource
+    UserMgrDao userDao;
+    
+    @Resource
+    RelationMapper relationMapper;
+    
+    @Resource
+    UserMgrDao  userMgrDao;
+    @Override
+    public void deleteDept(Integer deptId) {
+
+        Dept dept = deptMapper.selectById(deptId);
+
+        Wrapper<Dept> wrapper = new EntityWrapper<>();
+        wrapper = wrapper.like("pids", "%[" + dept.getId() + "]%");
+        List<Dept> subDepts = deptMapper.selectList(wrapper);
+        for (Dept temp : subDepts) {
+            temp.deleteById();
+        }
+        
+        
+
+        //通过id查询部门
+        Dept sel_dept = deptDao.selectById(deptId);
+       
+        //删除部门
+        deptDao.deleteDeptById(deptId);
+        
+        Role sel_role = roleDao.selectByRoleName(sel_dept.getSimplename());
+		if(sel_role!=null){
+			//删除部门关联的角色权限
+			deptDao.deleteRelationByRoleId(sel_role.getId());
+			
+			//删除部门所关联的角色
+			roleDao.deleteRolesById(sel_role.getId());
+		}
+        
+    }
+
+
+	
+    /**
+     * 为部门配置权限
+     * @param deptId 部门id
+     * @param ids 权限id组
+     * @author ZhuangJieXian
+     */
+	@Override
+	public void setAuthority(Integer deptId, String ids) {
+		
+		List<User> userList=null;
+        //通过id查询部门
+        Dept sel_dept = deptDao.selectById(deptId);
+        //通过部门名获取对应得角色
+        Role sel_role = roleDao.selectByRoleName(sel_dept.getSimplename());
+		
+		//删除该部门所有权限
+		//删除relation中的关联
+		if(sel_role!=null){
+			deptDao.deleteRelationByRoleId(sel_role.getId());
+			//获取为此角色的所有用户
+			//userList = userDao.selectUserByRoleId(sel_role.getId());
+			
+			//删除部门所关联的角色
+			roleDao.deleteRolesById(sel_role.getId());
+			
+		}
+		
+		
+		//为部门添加一个角色
+		Role role = new Role();
+		role.setDeptid(deptId);
+		role.setName(deptMapper.selectById(deptId).getSimplename());
+		role.setNum(deptId);
+		role.setPid(0);
+		
+		//插入角色
+		roleDao.insertRole(role);
+		//获取角色id
+		Integer roleId = role.getId();
+			
+        // 添加新的权限
+        for (Integer id : Convert.toIntArray(ids)) {
+            Relation relation = new Relation();
+            relation.setRoleid(roleId);
+            relation.setMenuid(id);
+            this.relationMapper.insert(relation);
+        }
+	}
+}

@@ -1,17 +1,28 @@
 @layout("/common/_container.html"){
 <div class="ibox float-e-margins">
     <div class="ibox-content">
-        <div class="form-horizontal">
+        <div class="form-horizontal" id="projectInfoForm">
 
-            <input type="hidden" id="id" value="${project.id}">
+           <input type="hidden" id="id" value="${project.id}">
 
             <div class="row">
                 <div class="col-sm-6 b-r">
-
+                    <#IconInput id="name" name="项目名称" underline="true" value="${project.name}" />
                 </div>
 
                 <div class="col-sm-6">
-
+                    <#IconInput id="isWorkingday" name="日期类型" underline="true" list="dateList" value="${ifWorkingday}" />
+                     <datalist id="dateList">
+                        <option  value="工作日"/>
+                        <option value="自然日"/>
+                        
+                    </datalist>
+                </div>
+                 <div class="col-sm-6">
+                    <#IconInput id="durationTime" name="所需天数" underline="true" value="${project.durationTime}"/>
+                </div>
+                 <div class="col-sm-6">
+                    <#IconInput id="projectOrder" name="顺序" underline="true" value="${project.projectOrder}"/>
                 </div>
             </div>
 

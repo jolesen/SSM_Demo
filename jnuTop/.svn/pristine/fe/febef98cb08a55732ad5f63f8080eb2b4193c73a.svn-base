@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.business.dao.SampleUsedDao">
+
+<!-- List<Map<String, Object>> selectSampleUsedByCondition( @Param("condition") String condition); -->
+<select id="selectSampleUsedByCondition" resultType="map" parameterType = "string">
+SELECT s.sample_id,s.detection_item,s.lab_code,s.sample_number,s.subject_name,s.extracted,u.name,su.usage_amount,su.remarks
+FROM t_sample s
+LEFT JOIN  t_sample_used su ON su.sample_id = s.sample_id 
+LEFT JOIN t_sample_extracted_dna sed ON s.sample_id = sed.sample_id 
+LEFT JOIN t_sample_extracted_rna ser ON s.sample_id = ser.sample_id 
+LEFT JOIN user u ON su.user_id =u.id 
+WHERE s.extracted = '否' OR(s.extracted = '是' AND sed.is_complete = 1) 
+OR(s.extracted = '是' AND ser.is_complete = 1)
+</select>
+</mapper>

@@ -14,11 +14,21 @@ var Project = {
 Project.initColumn = function () {
     return [
         {field: 'selectItem', radio: true},
-        {title: 'id', field: 'id', visible: true, align: 'center', valign: 'middle'},
+        {title: 'id', field: 'id', visible: false, align: 'center', valign: 'middle'},
         {title: '项目名称', field: 'name', visible: true, align: 'center', valign: 'middle'},
-        {title: '顺序', field: 'num', visible: true, align: 'center', valign: 'middle'}
+        {title: '预期所需天数', field: 'duration_time', visible: true, align: 'center', valign: 'middle'},
+        {title: '项目状态', field: 'is_used', visible: true, align: 'center', valign: 'middle'},
+        {title: '顺序', field: 'project_order', visible: true, align: 'center', valign: 'middle'},
+        {title: '状态项目修改',field: 'status_change',formatter : operateFormatter}
     ];
 };
+//这是formatter对应的函数,添加两个按钮
+function operateFormatter(value, row, index) {
+    return ['<button  type="button" class="btn btn-primary btn-xs" onclick="Project.restore('+row.id+')" >启用</button> <button  type="button" class="btn btn-default btn-xs" onclick="Project.suspend('+row.id+')" >暂停</button>'
+            ].join('');
+    
+}
+
 
 /**
  * 检查是否选中
@@ -80,6 +90,36 @@ Project.delete = function () {
         ajax.set("projectId",this.seItem.id);
         ajax.start();
     }
+};
+
+/**
+ * 项目暂停
+ */
+Project.suspend = function (id) {
+	var ajax = new $ax(Feng.ctxPath + "/project/suspend", function (data) {
+        Feng.success("暂停成功!");
+        Project.table.refresh();
+    }, function (data) {
+        Feng.error("暂停失败!" + data.responseJSON.message + "!");
+    });
+    ajax.set("projectId",id);
+    ajax.start();
+}
+
+/**
+ * 项目启用
+ */
+Project.restore = function (id) {
+
+        var ajax = new $ax(Feng.ctxPath + "/project/restore", function (data) {
+            Feng.success("启用成功!");
+            Project.table.refresh();
+        }, function (data) {
+            Feng.error("启用失败!" + data.responseJSON.message + "!");
+        });
+        ajax.set("projectId",id);
+        ajax.start();
+    
 };
 
 /**

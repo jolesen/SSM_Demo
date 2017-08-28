@@ -1,0 +1,78 @@
+package com.stylefeng.guns.modular.business.service.impl;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.stylefeng.guns.common.exception.BizExceptionEnum;
+import com.stylefeng.guns.common.exception.BussinessException;
+import com.stylefeng.guns.core.util.ToolUtil;
+import com.stylefeng.guns.modular.business.dao.ProjectDao;
+import com.stylefeng.guns.modular.business.entity.Project;
+import com.stylefeng.guns.modular.business.service.IProjectService;
+
+/**
+ * 
+ * @author 罗健金
+ * @date 2017年8月21日
+ *
+ */
+@Service
+public class ProjectServiceImpl implements IProjectService {
+
+    @Resource
+    private ProjectDao projectDao;
+  
+    public boolean updateProjectById(Project project) {
+        
+        if (ToolUtil.isOneEmpty(project, project.getName(), project.getProjectOrder())) {
+            throw new BussinessException(BizExceptionEnum.REQUEST_NULL);
+        }
+        if(! ToolUtil.isNum(project.getProjectOrder())) {
+            throw new BussinessException(BizExceptionEnum.REQUEST_INVALIDATE);
+        }
+        Project projectNew = projectDao.selectById(project.getId());
+        projectNew.setDurationTime(project.getDurationTime());
+        projectNew.setName(project.getName());
+        projectNew.setProjectOrder(project.getProjectOrder()); 
+        if("工作日".equals(project.getIsWorkingday())) {
+            projectNew.setIsWorkingday("1");
+        } else if("自然日".equals(project.getIsWorkingday())) {
+            projectNew.setIsWorkingday("0");
+        } else {
+            throw new BussinessException(BizExceptionEnum.REQUEST_INVALIDATE);
+        }
+       
+        return  projectNew.insertOrUpdate();
+    }
+    public void insertProject(Project project) {
+        if (ToolUtil.isOneEmpty(project, project.getName(), project.getProjectOrder())) {
+            throw new BussinessException(BizExceptionEnum.REQUEST_NULL);
+        }
+        if("工作日".equals(project.getIsWorkingday())) {
+            project.setIsWorkingday("1");
+        } else if("自然日".equals(project.getIsWorkingday())) {
+            project.setIsWorkingday("0");
+        } else {
+            throw new BussinessException(BizExceptionEnum.REQUEST_INVALIDATE);
+        }
+        project.setIsUsed(1);
+        projectDao.insert(project);
+        
+    }
+    public Project getProjectById(Integer id) {
+        Project project = projectDao.selectById(id);
+        return project;
+    }
+    public boolean deleteById(Integer projectId) {
+        try {
+            projectDao.deleteById(projectId);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+}

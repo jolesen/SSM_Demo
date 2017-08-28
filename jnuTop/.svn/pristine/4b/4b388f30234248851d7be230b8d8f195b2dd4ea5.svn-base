@@ -1,0 +1,251 @@
+package com.stylefeng.guns.modular.business.controller;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.naming.NoPermissionException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.alibaba.fastjson.JSONObject;
+import com.stylefeng.guns.common.annotion.record.BusinessRecord;
+import com.stylefeng.guns.common.constant.state.BizType;
+import com.stylefeng.guns.common.constant.state.RecordType;
+import com.stylefeng.guns.common.constant.tips.Tip;
+import com.stylefeng.guns.common.controller.BaseController;
+import com.stylefeng.guns.common.exception.BizExceptionEnum;
+import com.stylefeng.guns.common.exception.BussinessException;
+import com.stylefeng.guns.common.exception.DBErrorException;
+import com.stylefeng.guns.common.exception.NonullException;
+import com.stylefeng.guns.common.exception.RepeatException;
+import com.stylefeng.guns.modular.business.dao.SampleDao;
+import com.stylefeng.guns.modular.business.entity.Sample;
+import com.stylefeng.guns.modular.business.service.ISampleService;
+
+/**
+ * 样本控制器
+ *
+ * @author fengshuonan
+ * @author djb
+ * @Date 2017-08-09 14:40:25
+ */
+@Controller
+@RequestMapping("/sample")
+public class SampleController extends BaseController {
+
+    private String PREFIX = "/business/sample/";
+
+    private Logger log = LoggerFactory.getLogger(this.getClass());
+    @Resource
+    ISampleService sampleService;
+    @Autowired
+    private SampleDao sampleDao;
+    private String exportURL = "E:\\projectTest\\"; //服务器导出excel的默认路径
+    private String exportName = "test.xls"; //服务器导出excel的默认名字
+
+    /**
+     * 跳转到样本首页
+     */
+    @RequestMapping("")
+    public String index() {
+        return PREFIX + "sample.html";
+    }
+
+    /**
+     * 跳转到添加样本
+     */
+    @RequestMapping("/sample_add")
+    public String sampleAdd() {
+        return PREFIX + "sample_add.html";
+    }
+
+    /**
+     * 跳转到修改样本
+     */
+    @RequestMapping(value = "/sample_update/{sample_id}")
+    public String sampleUpdate(@PathVariable Integer sample_id, Model model) {
+        Sample sample = sampleService.findSampleById(sample_id);
+        model.addAttribute(sample);
+       // LogObjectHolder.me().set(sample);
+        return PREFIX + "sample_edit.html";
+    }
+
+    /**
+     * 跳转到Excel导入页面
+     *
+     * @return
+     */
+    @RequestMapping("/sample_uploadFile")
+    public String sampleUpload() {
+        return PREFIX + "sample_uploadFile.html";
+    }
+
+    /**
+     * @param condition
+     * @return 返回样本信息列表
+     * @author 罗健金
+     * @date 2017年8月17日
+     */
+    @RequestMapping(value = "/list")
+    @ResponseBody
+    public Object list(String condition) {
+        List<Map<String, Object>> samples = sampleDao.selectSamplesByCondition(condition);
+        return samples;
+    }
+
+
+    /**
+     * 新增样本
+     */
+    @RequestMapping(value = "/add")
+    @ResponseBody
+    public Object add(@Valid Sample sample, BindingResult bindingResult) throws NoPermissionException {
+        if (bindingResult.hasErrors()) {
+            throw new BussinessException(BizExceptionEnum.REQUEST_NULL);
+        }
+        sample.setSampleId(null);
+        try {
+            Integer insertedRow = sampleDao.insert(sample);
+            if (insertedRow <= 0) {
+                throw new BussinessException(BizExceptionEnum.SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            throw new BussinessException(BizExceptionEnum.SAMPLE_REPEAT_ERROR);
+        }
+        return super.SUCCESS_TIP;
+    }
+
+
+    /**
+     * 删除样本
+     */
+    @RequestMapping(value = "/delete")
+    @ResponseBody
+    public Object delete(String[] sampleId) {
+        sampleService.deleteById(sampleId);
+        return SUCCESS_TIP;
+    }
+
+
+    /**
+     * 修改样本
+     */
+    @RequestMapping(value = "/update")
+    @BusinessRecord(bizType = BizType.sample, recordType = RecordType.UPDATE, key = "sampleId",seperator = "</br>")
+    @ResponseBody
+    public Object update(Sample sample) {
+        sampleService.updateSample(sample);
+        return SUCCESS_TIP;
+    }
+
+
+    /**
+     * 样本详情
+     */
+    @RequestMapping(value = "/detail")
+    @ResponseBody
+    public Object detail() {
+        return null;
+    }
+
+
+    public void setSampleService(ISampleService sampleService) {
+        this.sampleService = sampleService;
+    }
+
+    public void setSampleDao(SampleDao sampleDao) {
+        this.sampleDao = sampleDao;
+    }
+
+    /**
+     * 导入excel文件
+     * @author djb
+     * @date 2017年8月18日
+     * @author djb
+     * @param <T>
+     * @date 2017年8月18日
+     * @param uploadFile 上传的文件
+     * @return 异常或者成功
+     * @throws Exception
+     */
+    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+    @ResponseBody
+  public <T> Tip insertExcel( @RequestParam("uploadFile") MultipartFile  uploadFile,String entityName,String map,int requiredNum) throws Exception {        System.out.println("controller接受到了 " + uploadFile.getOriginalFilename());
+        System.out.println("entityName为： " + entityName);
+        System.out.println("map为： " +map);
+        
+ 
+        try {
+sampleService.insertExcel(uploadFile,entityName,map,requiredNum);        } catch (NonullException e) {
+            throw new DBErrorException(e.getErrorInfo(), e.getErrorInfo());
+        } catch (RepeatException e) {
+            throw new DBErrorException(e.getErrorInfo(), e.getErrorInfo());
+        } catch (Exception e) {
+            System.out.println("错误类型：" + e.getMessage());
+            throw new DBErrorException("文件格式错误", e.getMessage());
+        }
+        return SUCCESS_TIP;
+    }
+
+    /**
+     * 导出excel文件
+     *
+     * @param ids 需要导出的样本的id。title 需要导出的表头。needExports 需要导出的字段。以上均为（xxx,xxxx,xxx格式）
+     * @return 异常或者路径名和文件名
+     * @throws Exception
+     * @author djb
+     * @date 2017年8月18日
+     */
+    @RequestMapping("/outputExcel")
+    @ResponseBody
+    public JSONObject outputExcel(String ids, String title, String needExports) throws Exception {
+        JSONObject result;
+        System.out.println("ids为：" + ids);
+        System.out.println("title为：" + title);
+        try {
+            result = sampleService.outputExcel(ids, title, needExports, exportURL, exportName);
+        } catch (FileNotFoundException e) {
+            throw new DBErrorException("文件正在被使用", e.getMessage());
+        } catch (IOException e) {
+            throw new DBErrorException(e.getMessage(), e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 将生成的文件网络传输到客户端
+     *
+     * @param
+     * @return 异常或者成功
+     * @throws Exception
+     * @author djb
+     * @date 2017年8月18日
+     */
+    @RequestMapping("/ajaxDownload")
+    public void ajaxDownload(HttpServletResponse response, HttpServletRequest request) throws Exception {
+        System.out.println("准备下载");
+        try {
+            sampleService.ajaxDownload(response, request);
+        } catch (Exception e) {
+            throw new DBErrorException("下载失败", e.getMessage());
+        }
+    }
+}

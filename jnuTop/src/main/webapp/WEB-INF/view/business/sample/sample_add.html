@@ -3,49 +3,51 @@
     <div class="ibox-content">
         <div class="form-horizontal" id="sampleInfoForm">
 
-            <input type="hidden" id="id" value="">
+            <input type="hidden" id="sampleId" value="">
+           
+
 
             <div class="row">
                 <div class="col-sm-6 b-r">
-                    <#IconInput id="labCode" name="实验室编号" underline="true" icon="glyphicon glyphicon-ok"/>
-                    <#IconInput id="sampleNumber" name="样本编号" underline="true" icon="glyphicon glyphicon-ok"/>
-                    <#IconInput id="detectionItem" name="检测项目" underline="true" icon="glyphicon glyphicon-book"/>
-                    <#IconInput id="salesman" name="销售员" underline="true" icon="glyphicon glyphicon-user"/>
-                    <#IconInput id="subjectName" name="受检者" underline="true" icon="glyphicon glyphicon-user"/>
-                    <#TimeConPlus id="acceptDate" name="收样日期,格式如:2017-08-17" underline="true" isTime="false" pattern="YYYY-MM-DD" icon="glyphicon glyphicon-calendar" />
-                    <#IconInput id="detectionDuration" name="检测所需时间" underline="true" icon="glyphicon glyphicon-time"/>
-                    <#TimeConPlus id="expectedReportTime" name="理论出报告时间，格式如:2017-08-17" underline="true" isTime="false" pattern="YYYY-MM-DD" icon="glyphicon glyphicon-calendar"/>
+                    <#input id="labCode" name="实验室编号" underline="true" />
+                    <#input id="sampleNumber" name="样本编号" underline="true" />
+                    <#input id="detectionItem" name="检测项目" underline="true" />
+                    <#input id="salesman" name="销售员" underline="true" />
+                    <#input id="subjectName" name="受检者" underline="true" />
+                    <#input id="acceptDate" name="收样日期" underline="true" type="date" clickFun="laydate({istime: false, format: 'YYYY-MM-DD'})" />
+                    <#input id="detectionDuration" name="检测所需天数" underline="true" />
+                    <#input id="expectedReportTime" name="理论出报告日期" underline="true" type="date"  clickFun="laydate({istime: false, format: 'YYYY-MM-DD'})" />
                 </div>
 
                 <div class="col-sm-6">
-                    <#IconInput id="extracted" name="是否已提取" underline="true" icon="glyphicon glyphicon-tint" list="extractedList"/>
-                    <datalist id="extractedList">
-                        <option value="已提取"/>
-                        <option value="未提取"/>
-                    </datalist>
-                    <#IconInput id="sampleType" name="样品类型" underline="true" icon="glyphicon glyphicon-plus" list="sampleTypeList"/>
-                    <datalist id="sampleTypeList">
-                        <option value="血液"/>
-                        <option value="唾液"/>
-                        <option value="组织"/>
-                        <option value="切片"/>
-                        <option value="蜡块"/>
-                        <option value="streck管"/>
-                        <option value="其他"/>
-                    </datalist>
-                    <#IconInput id="plasmaSeparation" name="血浆分离情况" underline="true" icon="glyphicon glyphicon-heart-empty"/>
-                    <#IconInput id="transportCondition" name="运输条件" underline="true" icon="glyphicon glyphicon-plus" list="transportConditionList"/>
-                    <datalist id="transportConditionList">
-                        <option value="常温"/>
-                        <option value="干冰"/>
-                        <option value="冰袋"/>
-                        <option value="其他"/>
-                    </datalist>
-                    <#IconInput id="sampleStorage" name="样本存储位置" underline="true" icon="glyphicon glyphicon-home"/>
-                    <#textarea id="remark" name="备注" underline="true" icon="glyphicon glyphicon-bookmark"></#textarea>
+                     <#select id="extracted" name="是否需要提取" underline="true">
+                        <option value="是">需要提取</option>
+                        <option value="否">不需要提取</option>
+                    </#select>
+                     <#select id="sampleType" name="样品类型" underline="true" >
+                         <option value="血液">血液</option>
+                        <option value="唾液">唾液</option>
+                        <option value="组织">组织</option>
+                        <option value="切片">切片</option>
+                        <option value="蜡块">蜡块</option>
+                        <option value="streck管">streck管</option>
+                        <option value="其他">其他</option>
+                    </#select>
+                 
+                      <#input id="plasmaSeparation" name="血浆分离情况" underline="true"  />
+                       <#select id="transportCondition" name="运输条件" underline="true" >
+                        <option value="常温">常温</option>
+                        <option value="干冰">干冰</option>
+                        <option value="冰袋">冰袋</option>
+                        <option value="其他">其他</option>
+                    </#select>
+                     <#input id="sampleStorage" name="样本存储位置" underline="true"  />
+                    <#textarea id="remark" name="备注" underline="true"  ></#textarea>
                     <#PictureUpload id="picture" name="上传图片" uploadImg=""/>
+
                 </div>
             </div>
+
 
             <div class="row btn-group-m-t">
                 <div class="col-sm-10">

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.business.dao.DetectionDao">
+	<select id="selectSamplesByCondition" resultType="map">
+		select * from t_detection
+	</select>
+	<select id="findDetectionById" resultType="com.stylefeng.guns.modular.business.entity.Detection">
+		select * from t_detection where id=#{id}
+	</select>
+	<update id="update">
+		UPDATE t_detection SET sample_id=#{sampleId}, `result`=#{result}, detector_id=#{detectorId}, mutation_site=#{mutationSite}, risk=#{risk}, detection_date=#{detectionDate}, remarks=#{remarks} WHERE id=#{id} 
+	</update>
+	<select id="selectBySampleId" resultType="com.stylefeng.guns.modular.business.entity.Detection">
+		select * from t_detection where sample_id=#{sample_id}
+	</select>
+	<select id="selectSampleIdByLabCode" resultType="java.lang.Integer">
+		select sample_id from t_detection where lab_code=#{labCode}
+	</select>
+
+
+	<insert id="insertByBatch" parameterType="java.util.List">
+		insert into t_detection (sample_id,result,detector_id,mutation_site,risk,detection_date,remarks)
+		  VALUES
+		<foreach collection="list" item="item" index="index" separator=",">                        
+			(#{item.sampleId},#{item.result},#{item.detectorId},
+			 #{item.mutationSite},#{item.risk},#{item.detectionDate},
+			 #{item.remarks})
+		</foreach>
+	</insert>
+	
+</mapper>

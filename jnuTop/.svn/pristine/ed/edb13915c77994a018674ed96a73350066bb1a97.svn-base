@@ -1,0 +1,327 @@
+package com.stylefeng.guns.business.controller;
+
+import com.stylefeng.guns.base.BaseJunit;
+import com.stylefeng.guns.modular.business.dao.SampleDao;
+import com.stylefeng.guns.modular.business.entity.Sample;
+import com.stylefeng.guns.modular.business.service.ISampleService;
+import com.stylefeng.guns.modular.business.util.ExcelReader;
+
+import ch.qos.logback.core.net.LoginAuthenticator;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+import static com.stylefeng.guns.util.JacksonUtils.generateJacksonString;
+import static com.stylefeng.guns.util.JacksonUtils.generateJacksonString_withIncompleteInfo;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+/**
+ * 测试SampleController
+ * 继承于BaseJunit
+ * @author 梁俊鹏
+ * @since 2017/8/15
+ */
+public class SampleControllerTest extends BaseJunit{
+
+    @MockBean
+    private ISampleService sampleService;
+
+    @MockBean
+    private SampleDao sampleDao;
+
+    private List<Sample> sampleList;
+
+    @Before
+    public void initSampleList() throws Exception {
+        MultipartFile excelMultipartFile = getExcelMultipartFile("commit.xlsx");
+        this.sampleList = ExcelReader.read(excelMultipartFile.getInputStream());
+    }
+
+    /**
+     * 登录
+     * @author zmj
+     * @since 2017年8月22日下午2:29:36
+     */
+    @Before
+    public void Login(){
+    	super.setupMockMvc("","");
+    }
+
+
+	/**
+     * 测试 add 方法，成功
+     * @author 梁俊鹏
+     * @since 2017/8/16
+     */
+    @Test
+    public void addTest() throws Exception {
+        Sample sample = sampleList.get(0);
+
+        when(sampleDao.insert(sample))
+                .thenReturn(1);
+
+        // 生成Sample的JSON字符串
+        String jackson = generateJacksonString(sample);
+
+        mockMvc.perform(get("/sample/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jackson)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(200)));
+    }
+
+
+    /**
+     * 测试 add 方法，抛出异常
+     * @author 梁俊鹏
+     * @since 2017/8/16
+     */
+    @Test
+    public void addTest_throwException() throws Exception {
+        Sample sample = sampleList.get(0);
+
+        when(sampleDao.insert(sample))
+                .thenReturn(1);
+
+        // 生成Sample的JSON字符串，sample number 为空
+        String jackson =
+                generateJacksonString_withIncompleteInfo(sample, "sampleNumber");
+        //System.out.println(jackson);
+
+        mockMvc.perform(get("/sample/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jackson)
+        )
+                .andExpect(status().is4xxClientError());
+    }
+
+    /**
+     * 测试 add 方法，无法插入数据
+     * @author 梁俊鹏
+     * @since 2017/8/16
+     * @throws Exception
+     */
+    @Test
+    public void addTest_fail2Add() throws Exception {
+        Sample sample = sampleList.get(0);
+
+        given(sampleDao.insert(sample))
+                .willReturn(0);
+
+        // 生成Sample的JSON字符串
+        String jackson = generateJacksonString(sample);
+
+        mockMvc.perform(get("/sample/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jackson)
+        )// TODO: (梁俊鹏, 2017/8/16 11:44, 等待后端) 返回码未知
+                .andExpect(status().is4xxClientError());
+    }
+
+
+    /**
+     * 测试删除样本，成功删除
+     * @author 梁俊鹏
+     * @since 2017/8/16
+     */
+    @Test
+    public void deleteTest() throws Exception {
+
+        given(sampleDao.deleteById(1))
+                .willReturn(1);
+
+        String jackson = "{ \"sampleId\" : " + "1 }";
+        mockMvc.perform(get("/sample/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jackson)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(200)));
+    }
+
+    /**
+     * 测试删除样本，删除失败
+     * @author 梁俊鹏
+     * @throws Exception
+     */
+    @Test
+    public void deleteTest_fail2Del() throws Exception {
+
+        given(sampleDao.deleteById(1))
+                .willReturn(0);
+
+        String jackson = "{ \"sampleId\" : " + "1 }";
+        mockMvc.perform(get("/sample/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jackson)
+        )// TODO: (梁俊鹏, 2017/8/16 16:39, 等待后端) 返回码未知
+                .andExpect(status().is4xxClientError());
+    }
+
+    /**
+     * 测试更新样本，成功更新
+     * @author 梁俊鹏
+     * @since 2017/8/16
+     */
+    @Test
+    public void updateTest() throws Exception {
+        Sample sample = sampleList.get(0);
+        given(sampleService.updateSample(sample))
+                .willReturn(1);
+        String jackson = generateJacksonString(sample);
+        mockMvc.perform(get("/sample/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jackson)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(200)));
+    }
+
+    /**
+     * 测试更新样本，抛出异常
+     * @author 梁俊鹏
+     * @since 2017/8/16
+     */
+    @Test
+    public void updateTest_throwException() throws Exception {
+        Sample sample = sampleList.get(0);
+        given(sampleService.updateSample(sample))
+                .willReturn(1);
+        // 生成缺失Sample number的sample JSON 字符串
+        String jackson =
+                generateJacksonString_withIncompleteInfo(sample, "sampleNumber");
+        mockMvc.perform(get("/sample/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jackson)
+        )// TODO: (梁俊鹏, 2017/8/16 16:39, 等待后端) 返回码未知
+                .andExpect(status().is4xxClientError());
+    }
+
+    /**
+     * 测试更新样本，更新失败
+     * @author 梁俊鹏
+     * @since 2017/8/16
+     */
+    @Test
+    public void updateTest_fail2Update() throws Exception {
+        Sample sample = sampleList.get(0);
+        given(sampleService.updateSample(sample))
+                .willReturn(0);
+        String jackson = generateJacksonString(sample);
+        mockMvc.perform(get("/sample/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jackson)
+        )// TODO: (梁俊鹏, 2017/8/16 16:39, 等待后端) 返回码未知
+                .andExpect(status().is4xxClientError());
+    }
+
+    /**
+     * 测试列出样本细节，成功列出细节
+     * @author 梁俊鹏
+     * @since 2017/8/15
+     */
+    @Test
+    public void detailTest() throws Exception {
+        mockMvc.perform(get("/sample/detail")).andExpect(status().isOk());
+    }
+
+    /**
+     * 测试 importExcel 方法，成功导入
+     * Test data: jnuTop\target\test-classes\com\stylefeng\guns\business\controller\commit.xlsx (in Windows)
+     * Test data: jnuTop/target/test-classes/com/stylefeng/guns/business/controller/commit.xlsx (in Windows)
+     * @author 梁俊鹏
+     * @since 2017/8/15
+     */
+    @Test
+    public void insertExcelTest() throws Exception {
+
+        // SUCCESS insert dataList
+        MultipartFile excelMultipartFile = getExcelMultipartFile("commit.xlsx");
+
+        given(sampleService.inputSamples(this.sampleList,
+                0, this.sampleList.size()-1))
+                .willReturn("SUCCESS");
+
+        // Successfully added to database
+        mockMvc.perform(MockMvcRequestBuilders.fileUpload("/sample/importExcel")
+                .file((MockMultipartFile) excelMultipartFile))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(200)));
+
+
+    }
+
+    /**
+     * 测试 importExcel 方法，抛出异常
+     * Test data: jnuTop\target\test-classes\com\stylefeng\guns\business\controller\commit.xlsx (in Windows)
+     * Test data: jnuTop/target/test-classes/com/stylefeng/guns/business/controller/commit.xlsx (in Windows)
+     * @author 梁俊鹏
+     * @since 2017/8/15
+     */
+    @Test
+    public void importExcelTest_throwException() throws Exception {
+
+        /*
+        抛出异常
+        */
+        MultipartFile excelMultipartFile = getExcelMultipartFile("commit.xlsx");
+
+        given(sampleService.inputSamples(this.sampleList,
+                0, this.sampleList.size()-1))
+                .willThrow(new Exception());
+
+        mockMvc.perform(MockMvcRequestBuilders.fileUpload("/sample/importExcel")
+                .file((MockMultipartFile) excelMultipartFile))
+                .andExpect(status().is5xxServerError());
+    }
+
+    /**
+     * 将用于测试的Excel文件封装成MultipartFile类型，并且可以自动识别不同系统的路径格式
+     * @author 梁俊鹏
+     * @since 2017/8/15
+     * @param testExcelName
+     * @return a MultipartFile refers to the testing excel file ${testExcelName}
+     * @throws URISyntaxException
+     */
+    private MultipartFile getExcelMultipartFile(String testExcelName) throws URISyntaxException {
+        /* 从当前目录读取excel表格
+         * 1, 2 行用于兼容不同的系统路径格式
+         */
+        String currentPath = Paths.get(SampleControllerTest.class.getResource("").toURI()).toString(); // 1
+        Path excelPath = Paths.get(currentPath, testExcelName); // 2
+        String name = new String("uploadFile");
+        String originalFileName = new String(testExcelName);
+        String contentType = new String("multipart/form-data");
+        // 将excel文件存储在字符数组
+        byte[] content = null;
+        try {
+            content = Files.readAllBytes(excelPath);
+        } catch (final IOException ioe) {
+            System.err.println("Failed to read excel file, please check the file path.");
+            ioe.printStackTrace();
+        }
+        // 模拟一个MultipartFile
+        MultipartFile result = new MockMultipartFile(name,
+                originalFileName, contentType, content) ;
+
+        return result;
+    }
+}

@@ -1,0 +1,42 @@
+package com.stylefeng.guns.modular.business.service;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+/**
+ *
+ * 文件导入导出，数据库访问的辅助服务
+ * @author djb
+ * @Date 2017-08-25
+ */
+public interface IFileIOAuxiliaryService {
+	/**
+	 * 根据特殊的主键来判断是否可以插入
+	 * @param entity  要进入数据库的类
+	 * @param entityName   该类的类名
+	 * @return 成功或异常
+	 */
+	public <T> void InsertCheck(List<T> list,String entityName)throws Exception;
+	
+	/**
+	 * 导入附件
+	 * 
+	 * @author djb
+	 * @date 2017年8月25日
+	 * @param uploadFile
+	 *            要保存的文件
+	 * @param entityName
+	 *            要调用的类的名字
+	 * @param id
+	 *            具体要保存路径的类id
+	 * @param attachmentSaveURL
+	 *            附件保存的路径
+	 * @return 成功返回保存的路径名字 失败则异常
+	 * @throws IOException 
+	 * @throws Exception
+	 */
+	public void saveAttachment(MultipartFile uploadFile,  String entityName, String id,
+			String attachmentSaveURL) throws IOException;
+}

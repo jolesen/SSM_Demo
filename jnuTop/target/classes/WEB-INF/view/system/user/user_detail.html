@@ -1,0 +1,26 @@
+@layout("/common/_container.html"){
+<div class="ibox float-e-margins">
+    <div class="ibox-content">
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-sm-5 b-r">
+                    <#label style="display:none"></#label>
+                    <#label style="display:none"></#label>
+                    <#label style="display:none"></#label>
+                    <#label style="display:none"></#label>
+                    <#avatar id="avatar" name="头像" avatarImg="${user.avatar}" withoutUpload="true"/>
+                    <#label style="display:none"></#label>
+                    <#label style="display:none"></#label>
+                    <#label style="display:none"></#label>
+                </div>
+                <div class="col-sm-7">
+                    <#label name="姓名" value="${user.name}" underline="true"/>
+                    <#label name="部门" value="${deptName}" underline="true"/>
+                    <#label name="邮箱" value="${user.email}" underline="true"/>
+                    <#label name="电话" value="${user.phone}"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@}

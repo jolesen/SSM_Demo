@@ -32,13 +32,13 @@
                             @}
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             @if(shiro.hasPermission("/sample/importExcel")){
-                                <#button name="Excel导入" icon="fa-plus" clickFun="Sample.uploadFile()" space="true"/>
+                                <#button name="Excel导入" icon="fa-plus" clickFun="Sample.uploadExcel()" space="true"/>
                             @}
                             @if(shiro.hasPermission("/sample/outputExcel")){
                                 <#button name="Excel导出" icon="fa-plus" clickFun="outputExcel()" space="true"/>
                             @}
                         </div>
-                        <#table id="SampleTable"/>
+                        <#table id="SampleTable" />
                     </div>
                 </div>
             </div>

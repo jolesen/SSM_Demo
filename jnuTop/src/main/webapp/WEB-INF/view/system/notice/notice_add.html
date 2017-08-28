@@ -1,39 +1,109 @@
 @layout("/common/_container.html"){
 <div class="ibox float-e-margins">
-    <div class="ibox-content">
-        <div class="form-horizontal" id="noticeInfoForm">
+	<div class="ibox-content">
+		<div class="form-horizontal" id="noticeInfoForm">
 
-            <input type="hidden" id="id" value="">
+			<input type="hidden" id="id" value="">
 
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="form-group">
-                        <label class="col-sm-1 control-label">标题</label>
-                        <div class="col-sm-11">
-                            <input class="form-control" id="title" name="title" type="text">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="form-group">
+						<label class="col-sm-1 control-label">标题</label>
+						<div class="col-sm-11">
+							<input class="form-control" id="title" name="title" type="text">
 
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-1 control-label">内容</label>
-                        <div class="col-sm-11">
-                            <div id="editor" class="editorHeight">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-1 control-label">内容</label>
+						<div class="col-sm-11">
+							<div id="editor" class="editorHeight"></div>
+						</div>
+					</div>
+				</div>
 
-            <div class="row btn-group-m-t">
-                <div class="col-sm-10">
-                    <#button btnCss="info" name="提交" id="ensure" icon="fa-check" clickFun="NoticeInfoDlg.addSubmit()"/>
-                    <#button btnCss="danger" name="取消" id="cancel" icon="fa-eraser" clickFun="NoticeInfoDlg.close()"/>
-                </div>
-            </div>
-        </div>
+			</div>
 
-    </div>
+			<script type="text/javascript">
+				$(function() {
+					var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+			/* 
+					$("#btn_close").bind("click", function() {
+						parent.layer.close(index);
+					});
+			 */
+					$("#btn_save").bind("click", function() {
+						var depts = Feng.zTreeCheckedNodes("zTree");
+						//console.log(depts);
+						NoticeInfoDlg.addSubmit(depts);
+					});
+			
+					initZtree();
+				});
+			
+				function initZtree() {
+					var setting = {
+						check : {
+							enable : true,
+							chkboxType : {
+								"Y" : "ps",
+								"N" : "ps"
+							}
+						},
+						data : {
+							simpleData : {
+								enable : true
+							}
+						}
+					};
+			
+					var ztree = new $ZTree("zTree", "/dept/tree/");
+					ztree.setSettings(setting);
+					ztree.init();
+				}
+			</script>
+
+			<div class="container"
+				style="padding:  0px 10px !important;margin-top: -10px;text-align: center !important;">
+				<div class="row">
+					<div class="ibox float-e-margins">
+						<div class="ibox-title">
+							<h5>发送到部门：</h5>
+						</div>
+						<div class="ibox-content">
+							<ul id="zTree" class="ztree"></ul>
+						</div>
+					</div>
+				</div>
+				<!-- 
+				<div class="row">
+					<div class="col-md-12">
+						<button class="btn btn-sm btn-info" type="button" id="btn_save">
+							<i class="ace-icon fa fa-check bigger-110"></i>发送
+						</button>
+						&nbsp;
+						<button class="btn btn-sm btn-danger" type="button" id="btn_close">
+							<i class="ace-icon fa fa-close bigger-110"></i>取消
+						</button>
+					</div>
+				</div>
+				  -->
+			</div>
+			<div class="row btn-group-m-t">
+				<div class="col-sm-10">
+
+					<#button btnCss="info" name="发送" id="btn_save" icon="fa-check"
+						 />
+					<#button btnCss="danger" name="取消" id="cancel" icon="fa-eraser"
+						clickFun="NoticeInfoDlg.close()" />
+
+				</div>
+			</div>
+		</div>
+
+	</div>
 </div>
-<script type="text/javascript" src="${ctxPath}/static/js/plugins/wangEditor/wangEditor.js"></script>
+<script type="text/javascript"
+	src="${ctxPath}/static/js/plugins/wangEditor/wangEditor.js"></script>
 <script src="${ctxPath}/static/modular/system/notice/notice_info.js"></script>
 @}

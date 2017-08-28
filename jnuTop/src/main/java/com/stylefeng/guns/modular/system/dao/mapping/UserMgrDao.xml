@@ -54,5 +54,21 @@
 		<include refid="Base_Column_List_With_Pwd" />
 		from user where account = #{account} and status != 3
 	</select>
+	
+	<select id="selectUserByRoleId" resultType="user">
+		select * from user where roleid=#{roleId}
+	</select>
+
+	<select id="selectUserByAccount" resultType="user">
+		SELECT avatar,account,name,email,phone,deptid FROM user WHERE account=#{userAccount}
+	</select>
+	
+	<update id="updateUserByRoleId">
+		update  user set roleid=#{roleId} where id=#{userId}
+	</update>
+	
+	<update id="resetUserByRoleId">
+		update user set roleid=null where id=#{userId}
+	</update>
 
 </mapper>

@@ -1,0 +1,20 @@
+@layout("/common/_container.html"){
+<div class="ibox float-e-margins">
+    <div class="ibox-content">
+        <div class="form-horizontal">
+            <input type="hidden" id="id" value="">
+            <input type="hidden" id="bizType" value="${bizType}">
+            <input type="hidden" id="bizId" value="${bizId}">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <#table id="RecordTable"/>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/system/record/record_info.js"></script>
+<script src="${ctxPath}/static/modular/system/user/user.js"></script>
+@}

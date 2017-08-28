@@ -24,9 +24,6 @@ iconStyle : icon所带的样式，如果icon没有值则不显示此样式
     </label>
     <div class="col-sm-9">
         <textarea class="form-control" id="${id}" name="${id}"
-                  @if(isNotEmpty(value)){
-                  value="${tool.dateType(value)}"
-                  @}
                   @if(isNotEmpty(rows)){
                   rows="${rows}"
                   @}else{
@@ -51,7 +48,11 @@ iconStyle : icon所带的样式，如果icon没有值则不显示此样式
                   @if(isNotEmpty(style)){
                   style="${style}"
                   @}
-        ></textarea>
+            @if(isNotEmpty(value)){
+                >${tool.dateType(value)}</textarea>
+            @}else{
+                ></textarea>
+            @}
         @if(isNotEmpty(hidden)){
         <input class="form-control" type="hidden" id="${hidden}" value="${hiddenValue!}">
         @}
