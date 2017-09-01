@@ -18,7 +18,7 @@
                         </div>
                         <div class="hidden-xs" id="SampleUsedTableToolbar" role="group">
                             @if(shiro.hasPermission("/sampleUsed/add")){
-                                <#button name="添加" icon="fa-plus" clickFun="SampleUsed.openAddSampleUsed()"/>
+                                <#button name="领用" icon="fa-plus" clickFun="SampleUsed.openAddSampleUsed()"/>
                             @}
                             @if(shiro.hasPermission("/sampleUsed/update")){
                                 <#button name="修改" icon="fa-plus" clickFun="SampleUsed.openSampleUsedDetail()" space="true"/>

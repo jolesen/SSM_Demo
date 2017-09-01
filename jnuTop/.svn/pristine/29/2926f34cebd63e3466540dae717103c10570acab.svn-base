@@ -1,0 +1,51 @@
+@layout("/common/_container.html"){
+<div class="ibox float-e-margins">
+	<div class="ibox-content">
+		<div class="form-horizontal" id="BuildLibraryForm">
+
+			 
+			<div class="row">
+				<div class="col-sm-6 b-r">
+					<input id="id" type="hidden" value="${libraryBuild.id}"/>
+					<#input id="projectCode" name="项目编码" underline="true" value="${libraryBuild.projectCode}"/>
+					<#input id="sampleId" name="样本ID" underline="true" value="${libraryBuild.sampleId}"/>
+					<#input id="libraryCode" name="文库号" underline="true" value="${libraryBuild.libraryCode}"/>
+					<#input id="missionListName" name="任务单名称" underline="true" value="${libraryBuild.missionListName}"/>
+					<#input id="wellPlates96" name="96孔板位置" underline="true" value="${libraryBuild.wellPlates96}"/>
+					<#input id="redissolutionBulk" name="回溶体积" underline="true" value="${libraryBuild.redissolutionBulk}"/>
+					<#input id="consistencyConnection" name="连接接头后浓度(ng/ul)" value="${libraryBuild.consistencyConnection}"
+						underline="true" />
+					<#input id="totalConnection" name="连接接头后总量" underline="true" value="${libraryBuild.totalConnection}"/>
+					<#textarea id="Remarks" name="备注" underline="true" value="${libraryBuild.remarks}"/>
+				</div>
+
+				<div class="col-sm-6">
+					<#input id="index7" name="INDEX标签7" underline="true" value="${libraryBuild.index7}"/>
+					<#input id="index5" name="INDEX标签5" underline="true" value="${libraryBuild.index5}"/>
+					<#input id="libraryBulk" name="文库体积ul" underline="true" value="${libraryBuild.libraryBulk}"/>
+					<#input id="loopPcrTimes" name="pre-PCR循环数" underline="true" value="${libraryBuild.loopPcrTimes}"/>
+					<#input id="qb" name="QB浓度" underline="true" value="${libraryBuild.qb}"/>
+					<#input id="operater" name="操作人" underline="true" value="${libraryBuild.operater}"/>
+					<#input id="buildStartDate" name="建库开始时间" underline="true"
+						clickFun="laydate({istime: false, format: 'YYYY-MM-DD'})" value="${libraryBuild.buildStartDate}"/>
+					<#input id="buildEndDate" name="建库结束时间" underline="true"
+						clickFun="laydate({istime: false, format: 'YYYY-MM-DD'})" value="${libraryBuild.buildEndDate}"/>
+
+				</div>
+			</div>
+
+			<div class="row btn-group-m-t">
+				<div class="col-sm-10">
+					<#button btnCss="info" name="提交" id="ensure" icon="fa-check"
+						clickFun="BuildLibraryInfoDlg.editSubmit()" />
+					<#button btnCss="danger" name="取消" id="cancel" icon="fa-eraser"
+						clickFun="BuildLibraryInfoDlg.close()" />
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+<script
+	src="${ctxPath}/static/modular/business/BuildLibrary/BuildLibrary_info.js"></script>
+@}

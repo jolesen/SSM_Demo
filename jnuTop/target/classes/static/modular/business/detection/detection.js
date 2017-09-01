@@ -40,6 +40,22 @@ Detection.check = function () {
 };
 
 /**
+ * 点击上传附件
+ */
+Detection.uploadFile = function () {
+    var index = layer.open({
+        type: 2,
+        title: '附件上传',
+        area: ['500px', '250px'], //宽高
+        fix: false, //不固定
+        maxmin: true,
+        content: Feng.ctxPath + '/detection/detection_uploadFile'
+    });
+    console.log(Feng.ctxPath + "/detection/detection_uploadFile");
+    this.layerIndex = index;
+};
+
+/**
  * 点击添加检测结果
  */
 Detection.openAddDetection = function () {
@@ -87,6 +103,9 @@ Detection.delete = function () {
     }
 };
 
+
+
+
 /**
  * 查询检测结果列表
  */
@@ -95,6 +114,8 @@ Detection.search = function () {
     queryData['condition'] = $("#condition").val();
     Detection.table.refresh({query: queryData});
 };
+
+
 
 $(function () {
     var defaultColunms = Detection.initColumn();

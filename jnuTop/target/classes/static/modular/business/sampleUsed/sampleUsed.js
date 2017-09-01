@@ -13,16 +13,14 @@ var SampleUsed = {
  */
 SampleUsed.initColumn = function () {
     return [
-        {field: 'selectItem', checkbox: true},
+        {field: 'selectItem', radio: true},
         {title: 'sampleId', field: 'sample_id', visible: false, align: 'center', valign: 'middle'},
         {title: '项目编号', field: 'detection_item', visible: true, align: 'center', valign: 'middle'},
         {title: '实验室编号', field: 'lab_code', visible: true, align: 'center', valign: 'middle'},
         {title: '样本编号', field: 'sample_number', visible: true, align: 'center', valign: 'middle'},
         {title: '受检人姓名', field: 'subject_name', visible: true, align: 'center', valign: 'middle'},
         {title: '是否为原始样本', field: 'extracted', visible: true, align: 'center', valign: 'middle'},
-        {title: '领用人', field: 'name', visible: true, align: 'center', valign: 'middle'},
-        {title: '领用量', field: 'usage_amount', visible: true, align: 'center', valign: 'middle'},
-        {title: '备注', field: 'remarks', visible: true, align: 'center', valign: 'middle'},
+       
     ];
 };
 
@@ -44,15 +42,18 @@ SampleUsed.check = function () {
  * 点击添加样本领用
  */
 SampleUsed.openAddSampleUsed = function () {
-    var index = layer.open({
-        type: 2,
-        title: '添加样本领用',
-        area: ['800px', '420px'], //宽高
-        fix: false, //不固定
-        maxmin: true,
-        content: Feng.ctxPath + '/sampleUsed/sampleUsed_add'
-    });
-    this.layerIndex = index;
+	if(this.check()) {
+		  var index = layer.open({
+		        type: 2,
+		        title: '添加样本领用',
+		        area: ['800px', '420px'], //宽高
+		        fix: false, //不固定
+		        maxmin: true,
+		        content: Feng.ctxPath + '/sampleUsed/sampleUsed_add/'+this.seItem.sample_id
+		    });
+		    this.layerIndex = index;
+	}
+  
 };
 
 /**

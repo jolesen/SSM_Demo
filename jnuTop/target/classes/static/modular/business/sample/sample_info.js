@@ -207,6 +207,7 @@ var uploaderExcel = WebUploader.create({
     // 文件接收服务端。
     server: Feng.ctxPath + '/sample/importExcel',
     fileVal: "uploadExcel",
+    threads: 1,
     accept : {
 		title : '上传Excel',
 		extensions : 'xlsx',
@@ -291,6 +292,7 @@ var uploaderAttachment = WebUploader.create({
     // 文件接收服务端。
     server: Feng.ctxPath + '/sample/importAttachment',
     fileVal: "uploadAttachment",
+    threads: 1,
     accept : {
 		title : '上传附件',
 	},

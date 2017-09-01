@@ -1,0 +1,43 @@
+@layout("/common/_container.html"){
+
+<script type="text/javascript">
+window.onload=function(){
+initWebUpload();
+}
+</script>
+<div class="ibox float-e-margins">
+	<div class="ibox-content">
+	<input type="hidden" id="order" value="${order}">	
+	@if(isNotEmpty(theId)){
+      <input type="hidden" id="theId" value="${theId}"> 
+        @}
+        @if(isNotEmpty(entityName)){
+      <input type="hidden" id="entityName" value="${entityName}"> 
+        @}
+        @if(isNotEmpty(map)){
+      <input type="hidden" id="map" value="${map}"> 
+        @}
+        @if(isNotEmpty(requiredField)){
+      <input type="hidden" id="requiredField" value="${requiredField}"> 
+        @}
+        @if(isNotEmpty(specialfieldName)){
+      <input type="hidden" id="specialfieldName" value="${specialfieldName}"> 
+        @}
+         @if(isNotEmpty(title)){
+      <input type="hidden" id="title" value="${title}"> 
+        @}
+        				
+     <div id="uploader" class="wu-example">
+    <!--用来存放文件信息-->
+    <div id="Filelist" class="uploader-list">
+    </div>
+    <div class="btns row">
+        <div  class = " col-sm-2 col-sm-offset-4" id="FilePicker" name="uploadFile">选择文件 </div>
+        <div class = " col-sm-3"><button id="FileBtn" class="btn btn-default">开始上传</button></div>
+    </div>
+</div>
+
+	</div>
+</div>
+<script src="${ctxPath}/static/modular/business/common/fileIO_info.js"></script>
+@}

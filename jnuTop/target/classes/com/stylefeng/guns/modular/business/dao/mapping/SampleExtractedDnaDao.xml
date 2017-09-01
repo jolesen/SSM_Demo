@@ -2,4 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.stylefeng.guns.modular.business.dao.SampleExtractedDnaDao">
 
+<!--  通过条件查询样本信息
+<select id="listSampleDNA" parameterType="string"
+	resultType="map">
+	SELECT * FROM t_sample NATURAL LEFT OUTER JOIN t_sample_extracted_dna
+	<where>
+		<if test="condition != null and condition != ''">
+			detection_item like concat('%', #{condition}, '%')
+			or lab_code like concat('%', #{condition}, '%')
+			or sample_number like concat('%', #{condition}, '%')
+			or subject_name like concat('%', #{condition}, '%')
+			or sample_type like concat('%', #{condition}, '%')
+		</if>
+	</where> 
+	<where>
+	 and deleted=0
+	</where>
+	 
+</select>
+
+ -->
+
 </mapper>

@@ -44,7 +44,7 @@ SampleUsedInfoDlg.close = function() {
  * 收集数据
  */
 SampleUsedInfoDlg.collectData = function() {
-    this.set('id');
+    this.set('sampleId').set('userId').set('usageAmount').set('useDate').set('returnDate').set('remarks');
 }
 
 /**

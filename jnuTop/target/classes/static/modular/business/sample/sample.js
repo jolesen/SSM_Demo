@@ -43,9 +43,9 @@ Sample.initColumn = function () {
         {
             title: '附件', field: 'attachment_path', visible: true, align: 'center', valign: 'middle',width:60,
             formatter: function (value, row, index) {
-                return [
+                return [  
                 	'<a href="javascript:void(0);" onclick="Sample.uploadAttachment('+row.sample_id+')" title="查看">上传</a>',
-                	'<br/><a href="javascript:void(0);" onclick="Sample.uploadAttachment('+row.sample_id+')" title="查看">上传</a>'
+                	'<br/><a href="javascript:void(0);" onclick="Sample.downloadAttachment('+row.sample_id+')" title="查看">下载</a>',
                    
                 ].join('');
             }
@@ -72,6 +72,31 @@ Sample.check = function () {
 };
 
 /**
+ * 点击下载附件
+ */
+Sample.downloadAttachment = function (sample_id) {  
+    $.ajax({
+        url: "/sample/downloadAttachment",
+        type: 'POST',
+        data: {
+        	"entityName": "com.stylefeng.guns.modular.business.entity.Sample",
+            "sample_id": sample_id,
+        },
+        dataType: "JSON",
+        success: function (returndata) {
+            var downloadURL = "/sample/ajaxDownload";
+            var filedir = returndata.filedir;
+            var filename = returndata.filename;
+            Feng.success("文件已导出到服务器!");
+            $.download(downloadURL, 'post', filedir, filename); // 下载文件
+        },
+        error: function (returndata) {
+            Feng.error(returndata.responseJSON.error + "!");
+        }
+    });
+};
+
+/**
  * 点击上传附件
  */
 Sample.uploadAttachment = function (id) {
@@ -85,6 +110,8 @@ Sample.uploadAttachment = function (id) {
     });
     console.log(Feng.ctxPath + "/sample/sample_uploadAttachment/"+id);
     this.layerIndex = index;
+    
+    
 };
 
 
@@ -181,7 +208,7 @@ outputExcel = function () {
             type: 'POST',
             data: {
                 "ids": ids,
-                "title": "检测项目,实验室编码,样本编号,受检者姓名,销售,收样日期,样本类型,运输条件,血液到样温度,理论出报告时间,备注,样本来源,是否已提取,样本储存位置,报告日期14自然日",
+                "title": "检测项目,实验室编码,样本编号,受检者姓名,销售,收样日期,样本类型,运输条件,血液到样温度,理论出报告时间,备注,样本来源,是否需要提取,样本储存位置,报告所需时间",
                 "needExports": "detectionItem,labCode,sampleNumber,subjectName,salesman,acceptDate,sampleType,transportCondition,bloodTemperature,expectedReportTime,remark,sampleSource,extracted,sampleStorage,detectionDuration"
             },
             dataType: "JSON",

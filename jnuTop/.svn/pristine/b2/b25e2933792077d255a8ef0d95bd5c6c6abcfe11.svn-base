@@ -1,0 +1,242 @@
+package com.stylefeng.guns.modular.business.controller;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.naming.NoPermissionException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.alibaba.fastjson.JSONObject;
+import com.stylefeng.guns.common.annotion.record.BusinessRecord;
+import com.stylefeng.guns.common.constant.state.BizType;
+import com.stylefeng.guns.common.constant.state.RecordType;
+import com.stylefeng.guns.common.constant.tips.Tip;
+import com.stylefeng.guns.common.controller.BaseController;
+import com.stylefeng.guns.common.exception.BizExceptionEnum;
+import com.stylefeng.guns.common.exception.BussinessException;
+import com.stylefeng.guns.common.exception.ErrorWrapException;
+import com.stylefeng.guns.common.exception.FileNotExistException;
+import com.stylefeng.guns.common.exception.NonullException;
+import com.stylefeng.guns.common.exception.RepeatException;
+import com.stylefeng.guns.config.properties.FileIOProperties;
+import com.stylefeng.guns.modular.business.common.ExcelImportParameter;
+import com.stylefeng.guns.modular.business.dao.SampleDao;
+import com.stylefeng.guns.modular.business.entity.Sample;
+import com.stylefeng.guns.modular.business.service.IFileIOAuxiliaryService;
+import com.stylefeng.guns.modular.business.service.ISampleService;
+
+/**
+ * 文件上传下载控制器
+ *
+ * @author djb
+ * @Date 2017-08-09 14:40:25
+ */
+@Controller
+@RequestMapping("/fileIO")
+public class FileIOController extends BaseController {
+
+	private String UPLOAD_PREFIX = "/business/common/";
+	private String UPLOAD_EXCEL = "uploadEXCEL";
+	private String UPLOAD_Attachment = "uploadAttachment";
+
+	private Logger log = LoggerFactory.getLogger(this.getClass());
+
+	@Resource
+	private IFileIOAuxiliaryService fileIOAuxiliaryService;
+
+	/**
+	 * 跳转到Excel导入页面
+	 *
+	 * @return
+	 */
+	
+	@RequestMapping("/uploadExcel")
+	public String sampleUpload(Model model,ExcelImportParameter excelImportParameter) {
+		System.out.println("接收到的参数为 "+excelImportParameter.getRequiredField());
+		model.addAttribute("order", UPLOAD_EXCEL);
+		model.addAttribute("entityName", excelImportParameter.getEntityName());
+		model.addAttribute("map", excelImportParameter.getMap());
+		model.addAttribute("requiredField", excelImportParameter.getRequiredField());
+		model.addAttribute("specialfieldName", excelImportParameter.getSpecialfieldName());
+		model.addAttribute("title", excelImportParameter.getTitle());
+		return UPLOAD_PREFIX + "uploadFile.html";
+	}
+    
+	/**
+	 * 跳转到附件上传页面
+	 *
+	 * @return
+	 */
+	@RequestMapping("/uploadAttachment/{theId}/{entityName}")
+	public String sampleUploadAttachment(Model model,@PathVariable("theId") String id,@PathVariable("entityName") String entityName) {
+		model.addAttribute("order", UPLOAD_Attachment);
+		model.addAttribute("theId", id);
+		model.addAttribute("entityName",entityName);
+		return UPLOAD_PREFIX + "uploadFile.html";
+	}
+
+	/**
+	 * 导入excel文件
+	 * 
+	 * @author djb
+	 * @date 2017年8月18日
+	 * @param uploadFile
+	 *            上传的文件
+	 * @param entityName
+	 *            要转换成List的bean类,完整路径
+	 * @param map
+	 *            Excel表格的中文表头对应的英文转换（要与bean类的属性名一致）
+	 * @param requiredField
+	 *            必填字段（用于校验excel格式）
+	 * @param specialfieldName
+	 *            需要特殊操作的字段
+	 * @param title
+	 *            纯粹的类名，例如Sample
+	 * @return 没返回异常则成功
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+	@ResponseBody
+	public <T> Tip insertExcel(@RequestParam("uploadFile") MultipartFile uploadFile, String entityName, String map,
+			String requiredField, String title, String specialfieldName) throws Exception {
+		System.out.println("controller接受到了 " + uploadFile.getOriginalFilename());
+		System.out.println("entityName为： " + entityName);
+		System.out.println("map为： " + map);
+		System.out.println("specialfieldName为： " + specialfieldName);
+
+		fileIOAuxiliaryService.init();
+		fileIOAuxiliaryService.insertExcel(uploadFile, entityName, map, requiredField, title, specialfieldName);
+//		try {
+//		} catch (NonullException e) {
+//			throw new ErrorWrapException(e.getErrorInfo(), e.getErrorInfo());
+//		} catch (RepeatException e) {
+//			throw new ErrorWrapException(e.getErrorInfo(),e.getErrorInfo());
+//		} catch (Exception e) {
+//			System.out.println("错误类型：" + e.getMessage());
+//			throw new ErrorWrapException("文件格式错误", e.getMessage());
+//		}
+		return SUCCESS_TIP;
+	}
+
+	/**
+	 * 导出excel文件
+	 *
+	 * @param ids
+	 *            需要导出的样本的id。
+	 * @param title
+	 *            导出Excel表的表头
+	 * @param needExports
+	 *            需要导出的字段。以上均为（xxx,xxxx,xxx格式）,与title的顺序一一对应
+	 * @return 异常或者路径名和文件名
+	 * @throws Exception
+	 * @author djb
+	 * @date 2017年8月18日
+	 */
+	@RequestMapping("/outputExcel")
+	@ResponseBody
+	public JSONObject outputExcel(String ids, String title, String needExports) throws Exception {
+		JSONObject result;
+		System.out.println("ids为：" + ids);
+		System.out.println("title为：" + title);
+		try {
+			fileIOAuxiliaryService.init();
+			result = fileIOAuxiliaryService.outputExcel(ids, title, needExports);
+		} catch (FileNotFoundException e) {
+			throw new ErrorWrapException("文件正在被使用", e.getMessage());
+		} catch (IOException e) {
+			throw new ErrorWrapException(e.getMessage(), e.getMessage());
+		}
+		return result;
+	}
+	
+	/**
+	 * 上传附件
+	 * 
+	 * @author djb
+	 * @date 2017年8月25日
+	 * @return 异常或者成功
+	 * @throws Exception 
+	 */
+	@RequestMapping(value = "/importAttachment", method = RequestMethod.POST)
+	@ResponseBody
+	public <T> Tip importAttachment(@RequestParam("uploadFile") MultipartFile uploadFile,String entityName,@RequestParam("theId")String theId) throws Exception {
+		System.out.println("controller接受到了 " + uploadFile.getOriginalFilename()+" id为"+theId);
+
+		try {
+			fileIOAuxiliaryService.init();
+			fileIOAuxiliaryService.saveAttachment(uploadFile,entityName,theId);
+		} 
+		catch (Exception e) {
+			System.out.println("附件保存错误类型：" + e.getMessage());
+			throw new ErrorWrapException("附件保存错误", e.getMessage());
+		}
+		return SUCCESS_TIP;
+	}
+	
+	/**
+	 * 下载附件
+	 * 
+	 * @author djb
+	 * @date 2017年8月26日
+	 * @return 异常或者成功
+	 * @throws Exception 
+	 */
+	@RequestMapping(value = "/downloadAttachment", method = RequestMethod.POST)
+	@ResponseBody
+	public JSONObject downloadAttachment(@RequestParam("entityName")String entityName,@RequestParam("theId")String id) throws Exception {
+		System.out.println("sample_id为"+id);
+		JSONObject result = null;
+		try {
+			fileIOAuxiliaryService.init();
+			result=fileIOAuxiliaryService.downloadAttachment(entityName, id);	
+		} 
+		catch (FileNotExistException e) {
+			throw new ErrorWrapException(e.getErrorInfo(), e.getErrorInfo());
+		}
+		catch (Exception e) {
+			throw new ErrorWrapException("该记录没有附件可下载", e.getMessage());
+		}
+		return result;
+	}
+	
+	/**
+	 * 将生成的文件网络传输到客户端
+	 *
+	 * @param
+	 * @return 异常或者成功
+	 * @throws Exception
+	 * @author djb
+	 * @date 2017年8月18日
+	 */
+	@RequestMapping("/ajaxDownload")
+	public void ajaxDownload(HttpServletResponse response, HttpServletRequest request) throws Exception {
+		
+		System.out.println("准备下载");
+		try {
+			fileIOAuxiliaryService.init();
+			fileIOAuxiliaryService.ajaxDownload(response, request);
+		} catch (Exception e) {
+			throw new ErrorWrapException("下载失败", e.getMessage());
+		}
+	}
+
+}

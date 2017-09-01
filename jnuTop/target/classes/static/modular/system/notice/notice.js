@@ -18,7 +18,6 @@ Notice.initColumn = function () {
         {title: '标题', field: 'title', align: 'center', valign: 'middle', sortable: true},
         {title: '内容', field: 'content', align: 'center', valign: 'middle', sortable: true},
         {title: '发布者', field: 'createrName', align: 'center', valign: 'middle', sortable: true},
-        {title: '接收者',field: 'userName',align:'center',valign:'middle',sortavle: true},
         {title: '创建时间', field: 'createtime', align: 'center', valign: 'middle', sortable: true},
         {title: '状态',field: 'readed',align: 'center',valign: 'middle',sortable: true}
     ];

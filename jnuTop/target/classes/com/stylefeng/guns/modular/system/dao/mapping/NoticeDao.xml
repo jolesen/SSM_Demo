@@ -7,7 +7,7 @@
 		<if test="condition != null and condition != ''">
 			where title like CONCAT('%',#{condition},'%') or content like CONCAT('%',#{condition},'%')
 		</if>
-		inner join notice_user_relation on notice.id = notice_user_relation.notice_id
+		
 		order by createtime DESC
 	</select>
 
@@ -16,12 +16,13 @@
 	</insert>
 	
 	<select id="listByUserId" resultType="map">
-		select * from notice where id = any
+		select * from notice,notice_user_relation where notice.id = any
 		(select notice_id from notice_user_relation where user_id = #{userId}
 			<if test="all != null and all !=''">
 			and readed = 0
 			</if>
-		)
+		)and notice_user_relation.user_id = #{userId}
+		
 		order by createtime DESC
 	</select>
 	

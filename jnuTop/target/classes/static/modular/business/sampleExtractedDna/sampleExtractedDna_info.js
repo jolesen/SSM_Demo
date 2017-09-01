@@ -44,7 +44,7 @@ SampleExtractedDnaInfoDlg.close = function() {
  * 收集数据
  */
 SampleExtractedDnaInfoDlg.collectData = function() {
-    this.set('id');
+   this.set('labCode').set('sampleNumber').set('detectionItem').set('subjectName').set('sampleType');
 }
 
 /**

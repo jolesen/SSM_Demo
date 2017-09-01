@@ -1,0 +1,45 @@
+@layout("/common/_container.html"){
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>文库制备录入管理</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="row row-lg">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <#NameCon id="condition" name="名称" />
+                            </div>
+                            <div class="col-sm-3">
+                                <#button name="搜索" icon="fa-search" clickFun="BuildLibrary.search()"/>
+                            </div>
+                        </div>
+                        <div class="hidden-xs" id="BuildLibraryTableToolbar" role="group">
+                            @if(shiro.hasPermission("/BuildLibrary/add")){
+                                <#button name="添加" icon="fa-plus" clickFun="BuildLibrary.openAddBuildLibrary()"/>
+                            @}
+                            @if(shiro.hasPermission("/BuildLibrary/update")){
+                                <#button name="修改" icon="fa-plus" clickFun="BuildLibrary.openBuildLibraryDetail()" space="true"/>
+                            @}
+                            @if(shiro.hasPermission("/BuildLibrary/delete")){
+                                <#button name="删除" icon="fa-plus" clickFun="BuildLibrary.delete()" space="true"/>
+                            @}
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            @if(shiro.hasPermission("/BuildLibrary/excelImport")){
+                                <#button name="Excel导入" icon="fa-plus" clickFun="" space="true"/>
+                            @}
+                            @if(shiro.hasPermission("/BuildLibrary/excelExport")){
+                                <#button name="Excel导出" icon="fa-plus" clickFun="" space="true"/>
+                            @}
+                        </div>
+                        <#table id="BuildLibraryTable"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/business/BuildLibrary/BuildLibrary.js"></script>
+@}

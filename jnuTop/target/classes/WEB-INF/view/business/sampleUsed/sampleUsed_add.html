@@ -3,16 +3,19 @@
     <div class="ibox-content">
         <div class="form-horizontal">
 
-            <input type="hidden" id="id" value="">
+            <input type="hidden" id="sampleId" value="${sampleId}">
+            <input type="hidden" id="userId" value="${userId}">
 
             <div class="row">
-                <div class="col-sm-6 b-r">
-
+                <div class="col-sm-9 b-r">
+                    <#input type="text" id="username" name="领用人" underline="true" value="${username}" disabled="disabled" />
+                    <#input type="text" id="usageAmount" name="领用量" underline="true" />
+                     <#input id="useDate" name="领用日期" underline="true" type="date"  clickFun="laydate({istime: false, format: 'YYYY-MM-DD'})" />
+                     <#input id="returnDate" name="归还日期" underline="true" type="date"  clickFun="laydate({istime: false, format: 'YYYY-MM-DD'})" />
+                     <#textarea id="remarks" name="备注" underline="true"    ></#textarea>
                 </div>
 
-                <div class="col-sm-6">
-
-                </div>
+              
             </div>
 
             <div class="row btn-group-m-t">
